@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_gpath"
+    app:startDestination="@id/concreteDataFragment">
+
+    <fragment
+        android:id="@+id/concreteDataFragment"
+        android:name="edu.ivankuznetsov.registerdataviabarcode.ui.fragment.ConcreteDataFragment"
+        android:label="fragment_concrete_data"
+        tools:layout="@layout/fragment_concrete_data" />
+    <fragment
+        android:id="@+id/dataListFragment"
+        android:name="edu.ivankuznetsov.registerdataviabarcode.ui.fragment.DataListFragment"
+        android:label="fragment_data_list"
+        tools:layout="@layout/fragment_data_list" >
+        <action
+            android:id="@+id/action_dataListFragment_to_concreteDataFragment"
+            app:destination="@id/concreteDataFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/scannerFragment"
+        android:name="edu.ivankuznetsov.registerdataviabarcode.ui.fragment.ScannerFragment"
+        android:label="fragment_scanner"
+        tools:layout="@layout/fragment_scanner" />
+</navigation>
