@@ -13,7 +13,6 @@ import java.util.concurrent.ExecutionException
 class CameraXViewModel(private val context: WeakReference<Context>) : ViewModel() {
 
     private lateinit var cameraProviderLiveData: MutableLiveData<ProcessCameraProvider>
-
     val processCameraProvider: LiveData<ProcessCameraProvider>
         get() {
             context.get()?.let {

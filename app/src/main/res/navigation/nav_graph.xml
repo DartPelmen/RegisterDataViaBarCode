@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_gpath"
-    app:startDestination="@id/concreteDataFragment">
+    app:startDestination="@id/dataListFragment">
 
     <fragment
         android:id="@+id/concreteDataFragment"
@@ -18,6 +18,9 @@
         <action
             android:id="@+id/action_dataListFragment_to_concreteDataFragment"
             app:destination="@id/concreteDataFragment" />
+        <action
+            android:id="@+id/action_dataListFragment_to_scannerFragment"
+            app:destination="@id/scannerFragment" />
     </fragment>
     <fragment
         android:id="@+id/scannerFragment"
