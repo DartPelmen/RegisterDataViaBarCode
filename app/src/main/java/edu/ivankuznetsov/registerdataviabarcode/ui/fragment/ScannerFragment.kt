@@ -1,8 +1,11 @@
 package edu.ivankuznetsov.registerdataviabarcode.ui.fragment
 
+import android.content.DialogInterface
+import android.content.DialogInterface.OnKeyListener
 import android.os.Bundle
 import android.util.Log
 import android.util.Size
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,10 +22,16 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import edu.ivankuznetsov.registerdataviabarcode.database.DatabaseSingleton
+import edu.ivankuznetsov.registerdataviabarcode.database.entity.DataModel
+import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentBarCodeInfoDialogListDialogBinding
 import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentScannerBinding
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.BarCodeViewModel
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CameraXViewModel
 import java.lang.ref.WeakReference
+import java.time.LocalDate
+import java.util.Date
+import java.util.UUID
 import java.util.concurrent.Executors
 
 class ScannerFragment : Fragment() {
@@ -32,8 +41,9 @@ class ScannerFragment : Fragment() {
     private lateinit var previewUseCase: Preview
     private lateinit var analysisUseCase: ImageAnalysis
     private lateinit var viewModel: CameraXViewModel
-    private lateinit var barCodeDialogFragment:BottomSheetDialog
+    private lateinit var barCodeDialog:BottomSheetDialog
     private lateinit var binding: FragmentScannerBinding
+    private lateinit var dialogBinding: FragmentBarCodeInfoDialogListDialogBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         barCodeViewModel = requireActivity().viewModels<BarCodeViewModel>().value
@@ -44,6 +54,9 @@ class ScannerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentScannerBinding.inflate(inflater,container,false)
+        barCodeDialog = BottomSheetDialog(requireActivity())
+        dialogBinding = FragmentBarCodeInfoDialogListDialogBinding.inflate(barCodeDialog.layoutInflater)
+        barCodeDialog.setContentView(dialogBinding.root)
         return binding.root
     }
 
@@ -137,32 +150,42 @@ class ScannerFragment : Fragment() {
         imageProxy: ImageProxy
     ) {
 
+
+
+
+
             val inputImage =
                 InputImage.fromMediaImage(imageProxy.image!!, imageProxy.imageInfo.rotationDegrees)
             barcodeScanner.process(inputImage)
                 .addOnSuccessListener { barcodes ->
 
-                    if (barcodes.size != 0) {
+                    binding.tvScannedData.text = "SIZE is ${barcodes.size}"
+
+                    barCodeViewModel.setCodes(barcodes)
+                    if (barcodes.size > 0) {
                         requireActivity().runOnUiThread {
                             cameraProvider.unbind(analysisUseCase)
                         }
-                    }
-                    binding.tvScannedData.text = "SIZE is ${barcodes.size}"
-                    barCodeViewModel.setCodes(barcodes)
-                    if (barcodes.size > 0) {
-                        barCodeViewModel.switchBind()
-                        cameraProvider.unbind(analysisUseCase)
-                        barCodeDialogFragment.setOnCancelListener {
-                            cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
+
+                        dialogBinding.button.setOnClickListener {
+
+                                DatabaseSingleton.getInstance(requireActivity().applicationContext).dataModelDao().addData(
+                                    *listOf(DataModel(UUID.randomUUID(),"ivan","vladimirovich","kuznetsov","festu","+79990882846",Date()))
+                                        .toTypedArray())
+                            barCodeDialog.dismiss()
                         }
-                        barCodeDialogFragment.setOnDismissListener {
-                            cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
+
+                        barCodeDialog.setOnCancelListener {
+                            requireActivity().runOnUiThread {
+                                cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
+                            }
                         }
-                        barCodeDialogFragment.setOnKeyListener { dialog, keyCode, event ->
-                            cameraProvider.bindToLifecycle(this@ScannerFragment,cameraSelector,analysisUseCase)
-                            true
+                        barCodeDialog.setOnDismissListener {
+                            requireActivity().runOnUiThread {
+                                cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
+                            }
                         }
-                        barCodeDialogFragment.show()
+                        barCodeDialog.show()
 
 
                     }

@@ -1,4 +1,4 @@
-package edu.ivankuznetsov.registerdataviabarcode
+package edu.ivankuznetsov.registerdataviabarcode.ui.activity
 
 import android.Manifest
 import androidx.appcompat.app.AppCompatActivity
@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import edu.ivankuznetsov.registerdataviabarcode.databinding.ActivityMainBinding

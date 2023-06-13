@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clipToPadding="false"
-    android:orientation="vertical"
-    tools:context=".ui.fragment.BarCodeInfoDialogFragment">
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/textView"
