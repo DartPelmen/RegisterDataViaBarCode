@@ -5,7 +5,7 @@ import androidx.room.TypeConverter
 import java.util.UUID
 
 
-object UUIDConverter {
+public class  UUIDConverter {
     @TypeConverter
     fun fromUUID(uuid: UUID): String {
         return uuid.toString()

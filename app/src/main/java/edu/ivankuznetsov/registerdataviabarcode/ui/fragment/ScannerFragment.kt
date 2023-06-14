@@ -1,11 +1,8 @@
 package edu.ivankuznetsov.registerdataviabarcode.ui.fragment
 
-import android.content.DialogInterface
-import android.content.DialogInterface.OnKeyListener
 import android.os.Bundle
 import android.util.Log
 import android.util.Size
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,8 +25,8 @@ import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentBarCodeInfoD
 import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentScannerBinding
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.BarCodeViewModel
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CameraXViewModel
+import edu.ivankuznetsov.registerdataviabarcode.viewmodel.DataViewModel
 import java.lang.ref.WeakReference
-import java.time.LocalDate
 import java.util.Date
 import java.util.UUID
 import java.util.concurrent.Executors
@@ -44,9 +41,12 @@ class ScannerFragment : Fragment() {
     private lateinit var barCodeDialog:BottomSheetDialog
     private lateinit var binding: FragmentScannerBinding
     private lateinit var dialogBinding: FragmentBarCodeInfoDialogListDialogBinding
+    private lateinit var dataModel: DataViewModel
+    val analysisExecutor = Executors.newSingleThreadExecutor()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         barCodeViewModel = requireActivity().viewModels<BarCodeViewModel>().value
+        dataModel = requireActivity().viewModels<DataViewModel>().value
     }
 
     override fun onCreateView(
@@ -124,9 +124,9 @@ class ScannerFragment : Fragment() {
             .setTargetRotation(binding.previewView.display.rotation)
             .build()
         // Initialize our background executor
-        val cameraExecutor = Executors.newSingleThreadExecutor()
+
         analysisUseCase.setAnalyzer(
-            cameraExecutor
+            analysisExecutor
         ) { imageProxy ->
             processImageProxy(barcodeScanner, imageProxy)
         }
@@ -159,7 +159,6 @@ class ScannerFragment : Fragment() {
             barcodeScanner.process(inputImage)
                 .addOnSuccessListener { barcodes ->
 
-                    binding.tvScannedData.text = "SIZE is ${barcodes.size}"
 
                     barCodeViewModel.setCodes(barcodes)
                     if (barcodes.size > 0) {
@@ -168,10 +167,7 @@ class ScannerFragment : Fragment() {
                         }
 
                         dialogBinding.button.setOnClickListener {
-
-                                DatabaseSingleton.getInstance(requireActivity().applicationContext).dataModelDao().addData(
-                                    *listOf(DataModel(UUID.randomUUID(),"ivan","vladimirovich","kuznetsov","festu","+79990882846",Date()))
-                                        .toTypedArray())
+                            dataModel.addData(requireActivity().applicationContext,listOf(DataModel(UUID.randomUUID(),"ivan","vladimirovich","kuznetsov","festu","+79990882846",Date())))
                             barCodeDialog.dismiss()
                         }
 

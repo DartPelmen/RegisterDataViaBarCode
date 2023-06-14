@@ -2,7 +2,6 @@ package edu.ivankuznetsov.registerdataviabarcode.database
 
 import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.Room.databaseBuilder
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -16,7 +15,7 @@ class DatabaseSingleton private constructor(context: Context) {
     val database: BarCodeDatabase
 
     init {
-        database = databaseBuilder(context, BarCodeDatabase::class.java, "barcodes-db").build()
+        database = databaseBuilder(context, BarCodeDatabase::class.java, "abrir-db").build()
     }
 
     @Database(
@@ -29,12 +28,12 @@ class DatabaseSingleton private constructor(context: Context) {
     }
 
     companion object {
-        private var instance: BarCodeDatabase? = null
-        fun getInstance(context: Context): BarCodeDatabase {
+        private var instance: DatabaseSingleton? = null
+        fun getInstance(context: Context): DatabaseSingleton {
             synchronized(DatabaseSingleton::class.java) {
                 if (instance == null) {
                     synchronized(DatabaseSingleton::class.java) {
-                        instance = databaseBuilder(context,BarCodeDatabase::class.java, "datamodel-db").build()
+                        instance = DatabaseSingleton(context)
                     }
                 }
                 return instance!!
