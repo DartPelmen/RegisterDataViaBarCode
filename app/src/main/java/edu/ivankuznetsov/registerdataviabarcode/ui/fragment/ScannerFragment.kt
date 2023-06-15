@@ -7,22 +7,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.viewModels
+import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.gson.Gson
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
-import edu.ivankuznetsov.registerdataviabarcode.database.DatabaseSingleton
 import edu.ivankuznetsov.registerdataviabarcode.database.entity.DataModel
 import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentBarCodeInfoDialogListDialogBinding
 import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentScannerBinding
+import edu.ivankuznetsov.registerdataviabarcode.util.JsonConverter
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.BarCodeViewModel
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CameraXViewModel
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.DataViewModel
@@ -119,8 +124,11 @@ class ScannerFragment : Fragment() {
             .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS).build()
 
         val barcodeScanner: BarcodeScanner = BarcodeScanning.getClient(options)
-        analysisUseCase = ImageAnalysis.Builder()
-            .setTargetResolution(Size(1080,1920))
+        analysisUseCase = ImageAnalysis.Builder().setResolutionSelector(ResolutionSelector
+            .Builder()
+            .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
+            .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+            .build())
             .setTargetRotation(binding.previewView.display.rotation)
             .build()
         // Initialize our background executor
@@ -149,17 +157,14 @@ class ScannerFragment : Fragment() {
         barcodeScanner: BarcodeScanner,
         imageProxy: ImageProxy
     ) {
-
-
-
-
-
             val inputImage =
                 InputImage.fromMediaImage(imageProxy.image!!, imageProxy.imageInfo.rotationDegrees)
             barcodeScanner.process(inputImage)
                 .addOnSuccessListener { barcodes ->
-
-
+                    barcodes.forEach {
+                        Log.d(TAG,it.rawValue.toString())
+                    }
+                    Log.d(TAG, "SHOULD BE ${Gson().toJson(DataModel())}")
                     barCodeViewModel.setCodes(barcodes)
                     if (barcodes.size > 0) {
                         requireActivity().runOnUiThread {
@@ -167,7 +172,8 @@ class ScannerFragment : Fragment() {
                         }
 
                         dialogBinding.button.setOnClickListener {
-                            dataModel.addData(requireActivity().applicationContext,listOf(DataModel(UUID.randomUUID(),"ivan","vladimirovich","kuznetsov","festu","+79990882846",Date())))
+                            dataModel.addData(requireActivity().applicationContext,
+                                JsonConverter.barCodeValuesToData(barcodes))
                             barCodeDialog.dismiss()
                         }
 

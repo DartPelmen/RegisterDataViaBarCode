@@ -9,6 +9,8 @@ import androidx.room.Transaction
 import androidx.room.Update
 import edu.ivankuznetsov.registerdataviabarcode.database.entity.DataModel
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Dao
@@ -24,4 +26,7 @@ interface DataModelDao {
     fun getAll(): List<DataModel>
     @Query("SELECT * FROM dataModel WHERE uuid = :uuid")
     fun getByUUID(uuid: UUID): DataModel?
+
+    @Query("SELECT * FROM dataModel WHERE date = :date")
+    fun getAllByDate(date:LocalDateTime): List<DataModel>
 }

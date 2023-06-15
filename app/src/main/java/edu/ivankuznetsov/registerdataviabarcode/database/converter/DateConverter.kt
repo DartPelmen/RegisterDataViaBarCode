@@ -1,17 +1,21 @@
 package edu.ivankuznetsov.registerdataviabarcode.database.converter
 
 import androidx.room.TypeConverter
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.temporal.TemporalAccessor
 import java.util.Date
 
 
 public class DateConverter{
     @TypeConverter
-    fun timestampFromDate(date: Date): Long {
-        return date.time
+    fun timestampFromDate(date: LocalDateTime): Long {
+        return date.toEpochSecond(ZoneOffset.UTC)
     }
 
     @TypeConverter
-    fun dateFromTimestamp(timestamp: Long): Date {
-        return Date(timestamp)
+    fun dateFromTimestamp(timestamp: Long): LocalDateTime {
+        return LocalDateTime.ofEpochSecond(timestamp,0, ZoneOffset.UTC)
     }
 }

@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
                     ?.findNavController()
             //привязка навигации между экранами к bottom navigation.
             navController?.let {
-                NavigationUI.setupWithNavController(binding.bottomNavigationView, navController);
+                NavigationUI.setupWithNavController(binding.bottomNavigationView, navController)
             }
         }
         else {

@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import edu.ivankuznetsov.registerdataviabarcode.database.DatabaseSingleton
 import edu.ivankuznetsov.registerdataviabarcode.database.entity.DataModel
+import java.time.LocalDateTime
 import java.util.concurrent.Executors
 
 class DataViewModel: ViewModel() {
@@ -21,6 +22,12 @@ class DataViewModel: ViewModel() {
         executorService.execute {
             data.postValue(DatabaseSingleton.getInstance(context).database.dataModelDao().getAll().toMutableList()) }
     }
+
+    fun getAllByDate(context: Context, date: LocalDateTime){
+        executorService.execute {
+            data.postValue(DatabaseSingleton.getInstance(context).database.dataModelDao().getAllByDate(date).toMutableList()) }
+    }
+
     fun dropData(context: Context, dataModel: List<DataModel>){
         executorService.execute {
             DatabaseSingleton.getInstance(context).database.dataModelDao().dropData(*dataModel.toTypedArray())
