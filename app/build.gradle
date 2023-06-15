@@ -3,7 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'androidx.navigation.safeargs.kotlin'
     id 'kotlin-kapt'
-
+    id 'org.jetbrains.kotlin.plugin.serialization'
 }
 
 android {
@@ -40,7 +40,7 @@ android {
 dependencies {
 
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1'
 
     implementation "androidx.lifecycle:lifecycle-livedata:2.6.1"
     implementation "androidx.lifecycle:lifecycle-viewmodel:2.6.1"

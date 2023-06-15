@@ -18,7 +18,6 @@ import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.gson.Gson
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -31,6 +30,7 @@ import edu.ivankuznetsov.registerdataviabarcode.util.JsonConverter
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.BarCodeViewModel
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CameraXViewModel
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.DataViewModel
+import kotlinx.serialization.json.Json
 import java.lang.ref.WeakReference
 import java.util.Date
 import java.util.UUID
@@ -163,8 +163,9 @@ class ScannerFragment : Fragment() {
                 .addOnSuccessListener { barcodes ->
                     barcodes.forEach {
                         Log.d(TAG,it.rawValue.toString())
+                        Log.d(TAG, "SHOULD BE ${Json.decodeFromString<DataModel>(it.rawValue.toString())}")
+
                     }
-                    Log.d(TAG, "SHOULD BE ${Gson().toJson(DataModel())}")
                     barCodeViewModel.setCodes(barcodes)
                     if (barcodes.size > 0) {
                         requireActivity().runOnUiThread {

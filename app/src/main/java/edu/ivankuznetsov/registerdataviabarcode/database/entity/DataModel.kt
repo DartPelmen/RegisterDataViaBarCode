@@ -1,15 +1,26 @@
 package edu.ivankuznetsov.registerdataviabarcode.database.entity
 
-import android.provider.ContactsContract.Data
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.time.LocalDate
+import edu.ivankuznetsov.registerdataviabarcode.util.LocalDateTimeSerializer
+import edu.ivankuznetsov.registerdataviabarcode.util.UUIDSerializer
+import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
-import java.util.Date
 import java.util.UUID
 
+@Serializable
 @Entity(tableName = "dataModel")
-data class DataModel(@PrimaryKey var uuid: UUID, var fname: String, var sname: String = "", var lname: String, var rank: String = "", var phone: String, var office: String, var date: LocalDateTime = LocalDateTime.now()) {
+data class DataModel(@PrimaryKey
+                     @Serializable(UUIDSerializer::class)
+                     var uuid: UUID,
+                     var fname: String,
+                     var sname: String = "",
+                     var lname: String,
+                     var rank: String = "",
+                     var phone: String,
+                     var office: String,
+                     @Serializable(LocalDateTimeSerializer::class)
+                     var date: LocalDateTime = LocalDateTime.now()) {
     override fun equals(other: Any?): Boolean {
         return if(other is DataModel){
             this.uuid == other.uuid &&
@@ -20,5 +31,17 @@ data class DataModel(@PrimaryKey var uuid: UUID, var fname: String, var sname: S
             (this.sname == other.sname) &&
             (this.phone == other.phone)
         } else false
+    }
+
+    override fun hashCode(): Int {
+        var result = uuid.hashCode()
+        result = 31 * result + fname.hashCode()
+        result = 31 * result + sname.hashCode()
+        result = 31 * result + lname.hashCode()
+        result = 31 * result + rank.hashCode()
+        result = 31 * result + phone.hashCode()
+        result = 31 * result + office.hashCode()
+        result = 31 * result + date.hashCode()
+        return result
     }
 }
