@@ -2,12 +2,10 @@ package edu.ivankuznetsov.registerdataviabarcode.ui.fragment
 
 import android.os.Bundle
 import android.util.Log
-import android.util.Size
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.viewModels
-import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -32,8 +30,6 @@ import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CameraXViewModel
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.DataViewModel
 import kotlinx.serialization.json.Json
 import java.lang.ref.WeakReference
-import java.util.Date
-import java.util.UUID
 import java.util.concurrent.Executors
 
 class ScannerFragment : Fragment() {

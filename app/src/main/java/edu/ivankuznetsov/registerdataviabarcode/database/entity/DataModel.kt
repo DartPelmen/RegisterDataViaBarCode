@@ -8,11 +8,25 @@ import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
 import java.util.UUID
 
+/*
+{
+   "fname": "Ivan",
+   "sname": "Vladimirovich",
+   "lname": "Kuznetsov",
+   "rank": "st. teacher",
+   "phone": "+79990882846",
+   "office": "VTiKG",
+   "date": "1686888022",
+   "uuid": "6bc34baf-19c1-4343-8bb5-57413b54631f"
+}
+*
+*
+* */
 @Serializable
 @Entity(tableName = "dataModel")
 data class DataModel(@PrimaryKey
                      @Serializable(UUIDSerializer::class)
-                     var uuid: UUID,
+                     var uuid: UUID = UUID.randomUUID(),
                      var fname: String,
                      var sname: String = "",
                      var lname: String,
