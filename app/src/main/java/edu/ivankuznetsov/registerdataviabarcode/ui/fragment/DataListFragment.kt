@@ -58,7 +58,6 @@ class DataListFragment : Fragment() {
         binding.addDataButton.setOnClickListener {
             val action = DataListFragmentDirections.actionDataListFragmentToScannerFragment()
             controller.navigate(action)
-
         }
 
     }

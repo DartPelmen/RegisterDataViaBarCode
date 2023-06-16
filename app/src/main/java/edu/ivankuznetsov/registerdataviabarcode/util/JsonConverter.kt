@@ -13,13 +13,17 @@ object JsonConverter {
     }
 
     fun jsonToDataModel(json: String): DataModel {
-        return Json.decodeFromString<DataModel>(json)
+        return Json.decodeFromString(json)
     }
 
-    fun barCodeValuesToData(barcodes: List<Barcode>): List<DataModel>{
+    fun barCodeValuesToData(barcodes: List<Barcode>): MutableList<DataModel>{
         val resultList = mutableListOf<DataModel>()
         barcodes.forEach {
-            it.rawValue?.let { value -> jsonToDataModel(value).let { data -> resultList += data } }
+            it.rawValue?.let {
+                    value -> jsonToDataModel(value).let {
+                    data -> resultList += data
+                    }
+            }
         }
         return resultList
     }
