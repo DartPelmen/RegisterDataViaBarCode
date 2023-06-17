@@ -72,31 +72,30 @@ class ScannerFragment : Fragment() {
                 DividerItemDecoration.VERTICAL)
         )
         dialogBinding.dialogRV.adapter = adapter
-//        val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
-//            ItemTouchHelper.SimpleCallback(
-//                0,
-//                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-//            ) {
-//            override fun onMove(
-//                recyclerView: RecyclerView,
-//                viewHolder: RecyclerView.ViewHolder,
-//                target: RecyclerView.ViewHolder
-//            ): Boolean {
-//                Toast.makeText(this@ListActivity, "on Move", Toast.LENGTH_SHORT).show()
-//                return false
-//            }
-//
-//            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-//                Toast.makeText(this@ListActivity, "on Swiped ", Toast.LENGTH_SHORT).show()
-//                //Remove swiped item from list and notify the RecyclerView
-//                val position = viewHolder.adapterPosition
-//                arrayList.remove(position)
-//                adapter.notifyDataSetChanged()
-//            }
-//        }
-//
-//        val itemTouchHelper = ItemTouchHelper(simpleItemTouchCallback)
-//        itemTouchHelper.attachToRecyclerView(dialogBinding.dialogRV)
+
+        val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
+            ItemTouchHelper.SimpleCallback(
+                0,
+                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+            ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
+                //Remove swiped item from list and notify the RecyclerView
+                val position = viewHolder.bindingAdapterPosition
+                barCodeViewModel.dropCode(position)
+            }
+        }
+
+        val itemTouchHelper = ItemTouchHelper(simpleItemTouchCallback)
+        itemTouchHelper.attachToRecyclerView(dialogBinding.dialogRV)
+
         barCodeDialog.setContentView(dialogBinding.root)
         return binding.root
     }

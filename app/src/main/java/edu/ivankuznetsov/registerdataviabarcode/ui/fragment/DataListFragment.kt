@@ -59,6 +59,8 @@ class DataListFragment : Fragment() {
             val action = DataListFragmentDirections.actionDataListFragmentToScannerFragment()
             controller.navigate(action)
         }
+        binding.toExcelButton.setOnClickListener {
 
+        }
     }
 }
