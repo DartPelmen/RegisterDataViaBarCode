@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="data list" android:id="@+id/dataListFragment"/>
-    <item android:title="new data" android:id="@+id/scannerFragment"/>
+    <item
+        android:id="@+id/dataListFragment"
+        android:icon="@drawable/listeners"
+        android:title="data list" />
+    <item
+        android:id="@+id/scannerFragment"
+        android:icon="@drawable/qrcode"
+        android:title="new data" />
 </menu>
