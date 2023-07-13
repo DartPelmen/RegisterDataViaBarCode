@@ -34,17 +34,13 @@ class DataListFragment : Fragment() {
     private lateinit var controller: NavController
     private lateinit var dataModel: DataViewModel
     private lateinit var adapter: DataModelAdapter
-    var string = ""
     var clickedNum = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         controller = findNavController()
         dataModel = requireActivity().viewModels<DataViewModel>().value
-
         adapter = DataModelAdapter()
         dataModel.data.observe(requireActivity()){
-
-
             val productDiffUtilCallback =
                 DataModelListDiffUtil(adapter.getData(), it)
             val productDiffResult =
@@ -67,7 +63,7 @@ class DataListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.dataList.layoutManager = LinearLayoutManager(requireActivity())
-        binding.dataList.addItemDecoration(DividerItemDecoration(requireActivity(),DividerItemDecoration.VERTICAL))
+//        binding.dataList.addItemDecoration(DividerItemDecoration(requireActivity(),DividerItemDecoration.VERTICAL))
         binding.dataList.adapter = adapter
         binding.addDataButton.setOnClickListener {
             val action = DataListFragmentDirections.actionDataListFragmentToScannerFragment()
@@ -75,7 +71,7 @@ class DataListFragment : Fragment() {
         }
 
         binding.toExcelButton.setOnClickListener {
-            val list = dataModel.data.value?.let { value ->
+            dataModel.data.value?.let { value ->
                 val workbook = HSSFWorkbook()
                 val firstSheet = workbook.createSheet("Sheet No 1")
                 val headers = firstSheet.createRow(0)
@@ -125,13 +121,10 @@ class DataListFragment : Fragment() {
                         }
                     }
                     clickedNum++
-                    string = "You generate $clickedNum files"
-                    Log.d("TAG", file.absolutePath)
                     File(strPath).listFiles()?.forEach { Log.d("TAG", it.absolutePath) }
                     val intentShareFile = Intent(Intent.ACTION_SEND)
 
                     if (file.exists()) {
-                        Toast.makeText(requireContext(),"IT ALIVE", Toast.LENGTH_SHORT).show()
                         intentShareFile.type = "application/vnd.ms-excel"
                         intentShareFile.putExtra(Intent.EXTRA_STREAM,
                             FileProvider.getUriForFile(requireContext(), "edu.ivankuznetsov.registerdataviabarcode.provider", file))
@@ -140,8 +133,6 @@ class DataListFragment : Fragment() {
                             "Sharing File..."
                         )
                         intentShareFile.putExtra(Intent.EXTRA_TEXT, "Sharing File...")
-                        Toast.makeText(requireContext(),"IT ALIVE", Toast.LENGTH_SHORT).show()
-
                         startActivity(Intent.createChooser(intentShareFile, "Share File"))
                     }
                 }

@@ -18,6 +18,9 @@ class DataViewModel: ViewModel() {
             data.postValue(data.value)
         }
     }
+    fun contains(dataModel: DataModel): Boolean = data.value?.stream()?.anyMatch { x -> x.uuid == dataModel.uuid } ?: false
+
+
     fun getAll(context: Context){
         executorService.execute {
             data.postValue(DatabaseSingleton.getInstance(context).database.dataModelDao().getAll().toMutableList()) }

@@ -32,12 +32,9 @@ class DialogPreviewAdapter : RecyclerView.Adapter<DialogPreviewAdapter.ViewHolde
      * */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        holder.binding.lnameField.text = data[position].lname
-        holder.binding.fnameField.text = data[position].fname
-        holder.binding.snameField.text = data[position].sname
+        holder.binding.nameField.text = "${data[position].lname} ${data[position].fname} ${data[position].sname}"
+        holder.binding.rankOfficeField.text = "${data[position].rank} ${ data[position].office }"
         holder.binding.phoneField.text = data[position].phone
-        holder.binding.officeField.text = data[position].office
-        holder.binding.rankField.text = data[position].rank
 
 //        holder.itemView.setOnClickListener {
 //            val intent = Intent(holder.itemView.context,ConcreteCameraActivity::class.java)
@@ -53,6 +50,6 @@ class DialogPreviewAdapter : RecyclerView.Adapter<DialogPreviewAdapter.ViewHolde
     fun setCameras(data: MutableList<DataModel>){
         this.data = data
     }
-
+    fun getDataByPosition(position: Int) = data[position]
     fun getData():MutableList<DataModel> = data
 }

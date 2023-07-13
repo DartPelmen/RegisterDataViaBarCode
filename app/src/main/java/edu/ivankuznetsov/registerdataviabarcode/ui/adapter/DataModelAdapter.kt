@@ -32,9 +32,8 @@ class DataModelAdapter: RecyclerView.Adapter<DataModelAdapter.ViewHolder>() {
      * */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        holder.binding.lastNameField.text = data[position].lname
-        holder.binding.firstNameField.text = data[position].fname
-        holder.binding.patronymicField.text = data[position].sname
+        holder.binding.nameField.text = "${data[position].lname} ${data[position].fname} ${data[position].sname}"
+        holder.binding.rankOfficeField.text = "${ data[position].rank} ${data[position].office}"
         holder.binding.phoneField.text = data[position].phone
 
 //        holder.itemView.setOnClickListener {

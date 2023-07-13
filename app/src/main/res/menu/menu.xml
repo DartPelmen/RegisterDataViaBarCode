@@ -4,9 +4,11 @@
     <item
         android:id="@+id/dataListFragment"
         android:icon="@drawable/listeners"
+        android:iconTintMode="multiply"
         android:title="data list" />
     <item
         android:id="@+id/scannerFragment"
         android:icon="@drawable/qrcode"
+        android:iconTintMode="multiply"
         android:title="new data" />
 </menu>
