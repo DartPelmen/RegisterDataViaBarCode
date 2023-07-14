@@ -31,6 +31,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import edu.ivankuznetsov.registerdataviabarcode.R
+import edu.ivankuznetsov.registerdataviabarcode.database.entity.DataModel
 import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentBarCodeInfoDialogListDialogBinding
 import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentScannerBinding
 import edu.ivankuznetsov.registerdataviabarcode.ui.adapter.DialogPreviewAdapter
@@ -93,8 +94,18 @@ class ScannerFragment : Fragment() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
                 //Remove swiped item from list and notify the RecyclerView
                 val position = viewHolder.bindingAdapterPosition
-                val list = adapter.getData()
+                Log.d(TAG,"REMOVE")
+                val list = mutableListOf<DataModel>()
+                list.addAll(adapter.getData())
+                Log.d(TAG,"ADAPTER DATA IS ${adapter.getData()}")
+
+                Log.d(TAG,"ADAPTER DATA SIZE IS ${adapter.getData().size}")
+
+                Log.d(TAG,"POSITION $position")
                 list.remove(adapter.getDataByPosition(position))
+                Log.d(TAG,"NOW IT IS ${list.size}")
+                Log.d(TAG,"DATA IS $list")
+
                 val productDiffUtilCallback =
                     DataModelListDiffUtil(adapter.getData(), list)
                 val productDiffResult =
