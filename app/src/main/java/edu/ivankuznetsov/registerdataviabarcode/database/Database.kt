@@ -8,6 +8,7 @@ import androidx.room.TypeConverters
 import edu.ivankuznetsov.registerdataviabarcode.database.converter.DateConverter
 import edu.ivankuznetsov.registerdataviabarcode.database.converter.UUIDConverter
 import edu.ivankuznetsov.registerdataviabarcode.database.dao.CustomerDao
+import edu.ivankuznetsov.registerdataviabarcode.database.dao.EventsCustomersCrossRefDao
 import edu.ivankuznetsov.registerdataviabarcode.database.dao.EventsDao
 import edu.ivankuznetsov.registerdataviabarcode.database.entity.Customer
 import edu.ivankuznetsov.registerdataviabarcode.database.entity.Event
@@ -29,6 +30,7 @@ class DatabaseSingleton private constructor(context: Context) {
     abstract class BarCodeDatabase : RoomDatabase() {
         abstract fun customerDao():CustomerDao
         abstract fun eventsDao():EventsDao
+        abstract fun crossDao():EventsCustomersCrossRefDao
     }
 
     companion object {

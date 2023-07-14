@@ -16,7 +16,7 @@ import java.util.UUID
         ForeignKey(Customer::class,
             parentColumns = ["idCustomer"],
             childColumns = ["idCustomer"],
-            onDelete = RESTRICT,
+            onDelete = CASCADE,
             onUpdate = CASCADE),
         ForeignKey(Event::class, parentColumns = ["idEvent"], childColumns = ["idEvent"], onDelete = RESTRICT, onUpdate = CASCADE)
     ])

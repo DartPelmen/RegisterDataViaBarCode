@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import edu.ivankuznetsov.registerdataviabarcode.database.DatabaseSingleton
 import edu.ivankuznetsov.registerdataviabarcode.database.entity.Customer
 import java.time.LocalDateTime
+import java.util.UUID
 import java.util.concurrent.Executors
 
 class CustomerViewModel: ViewModel() {
@@ -15,13 +16,18 @@ class CustomerViewModel: ViewModel() {
     fun addData(context: Context, customer: List<Customer>){
         executorService.execute {
             DatabaseSingleton.getInstance(context).database.customerDao().addCustomer(*customer.toTypedArray())
-            data.value?.addAll(customer)
+            val list = TODO()
+            DatabaseSingleton.getInstance(context).database.crossDao().addCrossData()
             data.postValue(data.value)
         }
     }
     fun contains(customer: Customer): Boolean = data.value?.stream()?.anyMatch { x -> x.idCustomer == customer.idCustomer } ?: false
 
-
+    fun setCurrentCustomer(uuid: String, context: Context){
+        executorService.execute {
+            data.postValue(DatabaseSingleton.getInstance(context).database.customerDao().getAllByEventId(UUID.fromString(uuid)))
+        }
+    }
     fun getAll(context: Context){
         executorService.execute {
             data.postValue(DatabaseSingleton.getInstance(context).database.customerDao().getAll().toMutableList()) }
