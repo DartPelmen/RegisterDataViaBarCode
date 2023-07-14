@@ -3,11 +3,11 @@ package edu.ivankuznetsov.registerdataviabarcode.ui.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import edu.ivankuznetsov.registerdataviabarcode.database.entity.DataModel
+import edu.ivankuznetsov.registerdataviabarcode.database.entity.Customer
 import edu.ivankuznetsov.registerdataviabarcode.databinding.DialogListItemBinding
 
 class DialogPreviewAdapter : RecyclerView.Adapter<DialogPreviewAdapter.ViewHolder>() {
-    private var data: MutableList<DataModel> = mutableListOf()
+    private var data: MutableList<Customer> = mutableListOf()
 
     /**
      * Занимается организацией отображения ячейки списка
@@ -47,9 +47,9 @@ class DialogPreviewAdapter : RecyclerView.Adapter<DialogPreviewAdapter.ViewHolde
     /**
      * Задает список. Почти не используется.
      * */
-    fun setCameras(data: MutableList<DataModel>){
+    fun setCameras(data: MutableList<Customer>){
         this.data = data
     }
     fun getDataByPosition(position: Int) = data[position]
-    fun getData():MutableList<DataModel> = data
+    fun getData():MutableList<Customer> = data
 }

@@ -8,44 +8,40 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import edu.ivankuznetsov.registerdataviabarcode.database.entity.DataModel
 import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentDataListBinding
-import edu.ivankuznetsov.registerdataviabarcode.ui.adapter.DataModelAdapter
-import edu.ivankuznetsov.registerdataviabarcode.util.DataModelListDiffUtil
-import edu.ivankuznetsov.registerdataviabarcode.viewmodel.DataViewModel
+import edu.ivankuznetsov.registerdataviabarcode.ui.adapter.CustomersListAdapter
+import edu.ivankuznetsov.registerdataviabarcode.util.CustomersDiffUtil
+import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CustomerViewModel
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import java.util.UUID
 
 class DataListFragment : Fragment() {
     private lateinit var binding: FragmentDataListBinding
     private lateinit var controller: NavController
-    private lateinit var dataModel: DataViewModel
-    private lateinit var adapter: DataModelAdapter
+    private lateinit var dataModel: CustomerViewModel
+    private lateinit var adapter: CustomersListAdapter
     var clickedNum = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         controller = findNavController()
-        dataModel = requireActivity().viewModels<DataViewModel>().value
-        adapter = DataModelAdapter()
+        dataModel = requireActivity().viewModels<CustomerViewModel>().value
+        adapter = CustomersListAdapter()
         dataModel.data.observe(requireActivity()){
             val productDiffUtilCallback =
-                DataModelListDiffUtil(adapter.getData(), it)
+                CustomersDiffUtil(adapter.getCustomers(), it)
             val productDiffResult =
                 DiffUtil.calculateDiff(productDiffUtilCallback)
-            adapter.setCameras(it)
+            adapter.setCustomers(it)
             productDiffResult.dispatchUpdatesTo(adapter)
         }
         dataModel.getAll(requireActivity().applicationContext)

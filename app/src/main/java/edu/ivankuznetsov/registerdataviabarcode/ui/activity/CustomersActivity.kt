@@ -6,12 +6,11 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import edu.ivankuznetsov.registerdataviabarcode.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class CustomersActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private val cameraContract = registerForActivityResult(ActivityResultContracts.RequestPermission()){
@@ -38,6 +37,6 @@ class MainActivity : AppCompatActivity() {
         cameraContract.launch(Manifest.permission.CAMERA)
     }
     companion object {
-        val TAG = MainActivity::class.java.simpleName
+        val TAG = CustomersActivity::class.java.simpleName
     }
 }

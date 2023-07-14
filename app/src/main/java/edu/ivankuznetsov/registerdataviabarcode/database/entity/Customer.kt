@@ -23,21 +23,21 @@ import java.util.UUID
 *
 * */
 @Serializable
-@Entity(tableName = "dataModel")
-data class DataModel(@PrimaryKey
-                     @Serializable(UUIDSerializer::class)
-                     var uuid: UUID = UUID.randomUUID(),
-                     var fname: String,
-                     var sname: String = "",
-                     var lname: String,
-                     var rank: String = "",
-                     var phone: String,
-                     var office: String,
-                     @Serializable(LocalDateTimeSerializer::class)
-                     var date: LocalDateTime = LocalDateTime.now()) {
+@Entity(tableName = "customers")
+data class Customer(@PrimaryKey
+                    @Serializable(UUIDSerializer::class)
+                    var idCustomer: UUID = UUID.randomUUID(),
+                    var fname: String,
+                    var sname: String = "",
+                    var lname: String,
+                    var rank: String = "",
+                    var phone: String,
+                    var office: String,
+                    @Serializable(LocalDateTimeSerializer::class)
+                    var date: LocalDateTime = LocalDateTime.now()) {
     override fun equals(other: Any?): Boolean {
-        return if(other is DataModel){
-            this.uuid == other.uuid &&
+        return if(other is Customer){
+            this.idCustomer == other.idCustomer &&
             (this.rank == other.rank) &&
             (this.office == other.office) &&
             (this.fname == other.fname) &&
@@ -48,7 +48,7 @@ data class DataModel(@PrimaryKey
     }
 
     override fun hashCode(): Int {
-        var result = uuid.hashCode()
+        var result = idCustomer.hashCode()
         result = 31 * result + fname.hashCode()
         result = 31 * result + sname.hashCode()
         result = 31 * result + lname.hashCode()

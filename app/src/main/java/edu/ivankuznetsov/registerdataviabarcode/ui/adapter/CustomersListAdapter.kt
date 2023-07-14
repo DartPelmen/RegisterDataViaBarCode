@@ -3,22 +3,22 @@ package edu.ivankuznetsov.registerdataviabarcode.ui.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import edu.ivankuznetsov.registerdataviabarcode.database.entity.DataModel
-import edu.ivankuznetsov.registerdataviabarcode.databinding.DataModelListItemBinding
+import edu.ivankuznetsov.registerdataviabarcode.database.entity.Customer
+import edu.ivankuznetsov.registerdataviabarcode.databinding.CustomerItemBinding
 
-class DataModelAdapter: RecyclerView.Adapter<DataModelAdapter.ViewHolder>() {
-    private var data: MutableList<DataModel> = mutableListOf()
+class CustomersListAdapter: RecyclerView.Adapter<CustomersListAdapter.ViewHolder>() {
+    private var data: MutableList<Customer> = mutableListOf()
 
     /**
      * Занимается организацией отображения ячейки списка
      * */
-    inner class ViewHolder(val binding: DataModelListItemBinding) : RecyclerView.ViewHolder(binding.root)
+    inner class ViewHolder(val binding: CustomerItemBinding) : RecyclerView.ViewHolder(binding.root)
     /**
      * Создаем "отображатель"
      * */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int):
             ViewHolder = ViewHolder(
-        DataModelListItemBinding.inflate(
+        CustomerItemBinding.inflate(
             LayoutInflater.from(parent.context),
         parent,
         false))
@@ -47,9 +47,9 @@ class DataModelAdapter: RecyclerView.Adapter<DataModelAdapter.ViewHolder>() {
     /**
      * Задает список. Почти не используется.
      * */
-    fun setCameras(data: MutableList<DataModel>){
+    fun setCustomers(data: MutableList<Customer>){
         this.data = data
     }
 
-    fun getData():MutableList<DataModel> = data
+    fun getCustomers():MutableList<Customer> = data
 }

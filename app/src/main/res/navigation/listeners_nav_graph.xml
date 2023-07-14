@@ -6,18 +6,10 @@
     app:startDestination="@id/dataListFragment">
 
     <fragment
-        android:id="@+id/concreteDataFragment"
-        android:name="edu.ivankuznetsov.registerdataviabarcode.ui.fragment.ConcreteDataFragment"
-        android:label="fragment_concrete_data"
-        tools:layout="@layout/fragment_concrete_data" />
-    <fragment
         android:id="@+id/dataListFragment"
         android:name="edu.ivankuznetsov.registerdataviabarcode.ui.fragment.DataListFragment"
         android:label="fragment_data_list"
         tools:layout="@layout/fragment_data_list" >
-        <action
-            android:id="@+id/action_dataListFragment_to_concreteDataFragment"
-            app:destination="@id/concreteDataFragment" />
         <action
             android:id="@+id/action_dataListFragment_to_scannerFragment"
             app:destination="@id/scannerFragment" />

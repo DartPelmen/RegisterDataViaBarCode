@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -15,31 +14,28 @@ import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import edu.ivankuznetsov.registerdataviabarcode.R
-import edu.ivankuznetsov.registerdataviabarcode.database.entity.DataModel
+import edu.ivankuznetsov.registerdataviabarcode.database.entity.Customer
 import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentBarCodeInfoDialogListDialogBinding
 import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentScannerBinding
 import edu.ivankuznetsov.registerdataviabarcode.ui.adapter.DialogPreviewAdapter
-import edu.ivankuznetsov.registerdataviabarcode.util.DataModelListDiffUtil
+import edu.ivankuznetsov.registerdataviabarcode.util.CustomersDiffUtil
 import edu.ivankuznetsov.registerdataviabarcode.util.JsonConverter
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.BarCodeViewModel
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CameraXViewModel
-import edu.ivankuznetsov.registerdataviabarcode.viewmodel.DataViewModel
+import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CustomerViewModel
 import java.lang.ref.WeakReference
 import java.util.concurrent.Executors
 
@@ -54,13 +50,13 @@ class ScannerFragment : Fragment() {
     private lateinit var barCodeDialog:BottomSheetDialog
     private lateinit var binding: FragmentScannerBinding
     private lateinit var dialogBinding: FragmentBarCodeInfoDialogListDialogBinding
-    private lateinit var dataModel: DataViewModel
+    private lateinit var dataModel: CustomerViewModel
     private lateinit var adapter: DialogPreviewAdapter
     private val analysisExecutor = Executors.newSingleThreadExecutor()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         barCodeViewModel = requireActivity().viewModels<BarCodeViewModel>().value
-        dataModel = requireActivity().viewModels<DataViewModel>().value
+        dataModel = requireActivity().viewModels<CustomerViewModel>().value
     }
 
     override fun onCreateView(
@@ -95,7 +91,7 @@ class ScannerFragment : Fragment() {
                 //Remove swiped item from list and notify the RecyclerView
                 val position = viewHolder.bindingAdapterPosition
                 Log.d(TAG,"REMOVE")
-                val list = mutableListOf<DataModel>()
+                val list = mutableListOf<Customer>()
                 list.addAll(adapter.getData())
                 Log.d(TAG,"ADAPTER DATA IS ${adapter.getData()}")
 
@@ -107,7 +103,7 @@ class ScannerFragment : Fragment() {
                 Log.d(TAG,"DATA IS $list")
 
                 val productDiffUtilCallback =
-                    DataModelListDiffUtil(adapter.getData(), list)
+                    CustomersDiffUtil(adapter.getData(), list)
                 val productDiffResult =
                     DiffUtil.calculateDiff(productDiffUtilCallback)
                 adapter.setCameras(list)
@@ -228,7 +224,7 @@ class ScannerFragment : Fragment() {
                         val list = JsonConverter.barCodeValuesToData(barcodes)
                         list?.let { models ->
                             val productDiffUtilCallback =
-                                DataModelListDiffUtil(adapter.getData(), models)
+                                CustomersDiffUtil(adapter.getData(), models)
                             val productDiffResult =
                                 DiffUtil.calculateDiff(productDiffUtilCallback)
                             adapter.setCameras(models)
