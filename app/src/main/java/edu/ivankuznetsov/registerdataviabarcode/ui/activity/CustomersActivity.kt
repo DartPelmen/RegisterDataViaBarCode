@@ -11,19 +11,16 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import edu.ivankuznetsov.registerdataviabarcode.databinding.ActivityMainBinding
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CustomerViewModel
+import java.util.UUID
 
 class CustomersActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val customersViewModel:CustomerViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        intent.extras?.getString("eventId")?.let {uuid ->
-            customersViewModel.setCurrentCustomer(uuid, this)
-        }
         val navController =
             supportFragmentManager.findFragmentById(binding.fragmentContainerView.id)
                 ?.findNavController()

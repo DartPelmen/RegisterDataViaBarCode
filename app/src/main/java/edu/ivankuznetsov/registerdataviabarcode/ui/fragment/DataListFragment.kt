@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.content.FileProvider
 import androidx.navigation.NavController
@@ -15,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentDataListBinding
+import edu.ivankuznetsov.registerdataviabarcode.ui.activity.CustomersActivity
 import edu.ivankuznetsov.registerdataviabarcode.ui.adapter.CustomersListAdapter
 import edu.ivankuznetsov.registerdataviabarcode.util.CustomersDiffUtil
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CustomerViewModel
@@ -36,7 +38,9 @@ class DataListFragment : Fragment() {
         controller = findNavController()
         dataModel = requireActivity().viewModels<CustomerViewModel>().value
         adapter = CustomersListAdapter()
+
         dataModel.data.observe(requireActivity()){
+            Log.d("CUSTOMERS", "OBSERVING CUSTOMERS")
             val productDiffUtilCallback =
                 CustomersDiffUtil(adapter.getCustomers(), it)
             val productDiffResult =
@@ -44,7 +48,11 @@ class DataListFragment : Fragment() {
             adapter.setCustomers(it)
             productDiffResult.dispatchUpdatesTo(adapter)
         }
-        dataModel.getAll(requireActivity().applicationContext)
+
+        requireActivity().intent.getStringExtra("eventId")?.let {
+            Toast.makeText(requireContext(),it, Toast.LENGTH_SHORT).show()
+            dataModel.setCurrentCustomer(it,requireContext())
+        }
     }
 
     override fun onCreateView(

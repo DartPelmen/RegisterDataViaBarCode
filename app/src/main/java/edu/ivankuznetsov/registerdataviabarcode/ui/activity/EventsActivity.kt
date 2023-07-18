@@ -25,11 +25,18 @@ import java.util.UUID
 class EventsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEventsBinding
     private val eventsViewModel: EventsViewModel by viewModels()
-    private val cameraContract = registerForActivityResult(ActivityResultContracts.RequestPermission()){
+    private val cameraContract = registerForActivityResult(ActivityResultContracts.RequestPermission()){ it ->
         if(it){
             binding = ActivityEventsBinding.inflate(layoutInflater)
             setContentView(binding.root)
             val adapter = EventsAdapter()
+
+            eventsViewModel.getAll(this)
+            binding.recyclerView.layoutManager = LinearLayoutManager(this)
+            binding.recyclerView.adapter = adapter
+            binding.floatingActionButton.setOnClickListener {
+                eventsViewModel.addEvents(this, listOf(Event(UUID.randomUUID(),UUID.randomUUID().toString(), LocalDateTime.now(), LocalDateTime.now().plusDays(1))))
+            }
             eventsViewModel.data.observe(this){
                 val productDiffUtilCallback =
                     EventsDiffUtil(adapter.getEvents(), it)
@@ -37,12 +44,6 @@ class EventsActivity : AppCompatActivity() {
                     DiffUtil.calculateDiff(productDiffUtilCallback)
                 adapter.setEvents(it)
                 productDiffResult.dispatchUpdatesTo(adapter)
-            }
-            eventsViewModel.getAll(this)
-            binding.recyclerView.layoutManager = LinearLayoutManager(this)
-            binding.recyclerView.adapter = adapter
-            binding.floatingActionButton.setOnClickListener {
-                eventsViewModel.addEvents(this, listOf(Event(UUID.randomUUID(),UUID.randomUUID().toString(), LocalDateTime.now(), LocalDateTime.now().plusDays(1))))
             }
         }
         else {

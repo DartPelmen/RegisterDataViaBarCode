@@ -3,6 +3,7 @@ package edu.ivankuznetsov.registerdataviabarcode.ui.adapter
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import edu.ivankuznetsov.registerdataviabarcode.database.entity.Event
 import edu.ivankuznetsov.registerdataviabarcode.databinding.EventItemBinding
@@ -42,7 +43,7 @@ class EventsAdapter : RecyclerView.Adapter<EventsAdapter.ViewHolder>() {
 
         holder.itemView.setOnClickListener {
             val intent = Intent(holder.itemView.context,CustomersActivity::class.java)
-            intent.putExtra("eventId",data[position].idEvent)
+            intent.putExtra("eventId",data[position].idEvent.toString())
             holder.itemView.context.startActivity(intent)
         }
     }

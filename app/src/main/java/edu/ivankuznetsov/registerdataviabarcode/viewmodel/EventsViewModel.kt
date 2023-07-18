@@ -10,11 +10,13 @@ import java.util.concurrent.Executors
 class EventsViewModel: ViewModel() {
     private val executorService = Executors.newSingleThreadExecutor()
     val data = MutableLiveData<MutableList<Event>>()
+    init {
+        data.value = mutableListOf()
+    }
     fun addEvents(context: Context, events: List<Event>){
         executorService.execute {
             DatabaseSingleton.getInstance(context).database.eventsDao().addEvent(*events.toTypedArray())
-            data.value?.addAll(events)
-            data.postValue(data.value)
+            getAll(context)
         }
     }
     fun contains(event: Event): Boolean = data.value?.stream()?.anyMatch { x -> x.idEvent == event.idEvent } ?: false

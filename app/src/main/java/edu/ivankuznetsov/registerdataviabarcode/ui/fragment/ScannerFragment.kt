@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -231,7 +232,14 @@ class ScannerFragment : Fragment() {
                             productDiffResult.dispatchUpdatesTo(adapter)
 
                             dialogBinding.button.setOnClickListener {
-                                dataModel.data.value?.let { if(adapter.getData().stream().anyMatch { x -> it.contains(x) }) {
+                              //  Toast.makeText(requireContext(),"ADD CLICKED!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(requireContext(),dataModel.data.value.toString(),Toast.LENGTH_SHORT).show()
+                                dataModel.data.value?.let {
+                                    Toast.makeText(requireContext(),"ADDING! TWO!", Toast.LENGTH_SHORT).show()
+
+                                    if(adapter.getData().stream().anyMatch { x -> it.contains(x) }) {
+                                    Toast.makeText(requireContext(),"EXIST! TWO!", Toast.LENGTH_SHORT).show()
+
                                     MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme).setPositiveButton("OK"){ x, _->
                                         requireActivity().runOnUiThread {
                                             cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
@@ -239,8 +247,12 @@ class ScannerFragment : Fragment() {
                                         x.dismiss()
                                     }.setMessage("Обнаружены данные, которые уже добавлены в список!").show()
                                 }else {
+                                    Toast.makeText(requireContext(),"ADD CHOICE ONE!", Toast.LENGTH_SHORT).show()
+
                                     dataModel.addData(requireActivity().applicationContext,adapter.getData())
                                 }} ?: {
+                                    Toast.makeText(requireContext(),"ADD CHOICE TWO!", Toast.LENGTH_SHORT).show()
+
                                     dataModel.addData(requireActivity().applicationContext, adapter.getData())
                                 }
                                 barCodeDialog.dismiss()
