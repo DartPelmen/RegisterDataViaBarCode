@@ -37,6 +37,9 @@ import edu.ivankuznetsov.registerdataviabarcode.util.JsonConverter
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.BarCodeViewModel
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CameraXViewModel
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CustomerViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import java.lang.Exception
 import java.lang.ref.WeakReference
 import java.util.concurrent.Executors
 
@@ -232,27 +235,25 @@ class ScannerFragment : Fragment() {
                             productDiffResult.dispatchUpdatesTo(adapter)
 
                             dialogBinding.button.setOnClickListener {
-                              //  Toast.makeText(requireContext(),"ADD CLICKED!", Toast.LENGTH_SHORT).show()
-                                Toast.makeText(requireContext(),dataModel.data.value.toString(),Toast.LENGTH_SHORT).show()
-                                dataModel.data.value?.let {
-                                    Toast.makeText(requireContext(),"ADDING! TWO!", Toast.LENGTH_SHORT).show()
-
-                                    if(adapter.getData().stream().anyMatch { x -> it.contains(x) }) {
-                                    Toast.makeText(requireContext(),"EXIST! TWO!", Toast.LENGTH_SHORT).show()
-
-                                    MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme).setPositiveButton("OK"){ x, _->
-                                        requireActivity().runOnUiThread {
-                                            cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
+                                dataModel.getAll(requireContext()).let {
+                                    try {
+                                        if(adapter.getData().stream().anyMatch {x ->
+                                                Log.d(TAG, x.toString())
+                                                it.contains(x) }) {
+                                            MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme).setPositiveButton("OK"){ x, _->
+                                                requireActivity().runOnUiThread {
+                                                    cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
+                                                }
+                                                x.dismiss()
+                                            }.setMessage("Обнаружены данные, которые уже добавлены в список!").show()
+                                        }else {
+                                            dataModel.addData(requireActivity().applicationContext,adapter.getData())
                                         }
-                                        x.dismiss()
-                                    }.setMessage("Обнаружены данные, которые уже добавлены в список!").show()
-                                }else {
-                                    Toast.makeText(requireContext(),"ADD CHOICE ONE!", Toast.LENGTH_SHORT).show()
-
-                                    dataModel.addData(requireActivity().applicationContext,adapter.getData())
-                                }} ?: {
-                                    Toast.makeText(requireContext(),"ADD CHOICE TWO!", Toast.LENGTH_SHORT).show()
-
+                                    }catch (ex: Exception){
+                                        Toast.makeText(requireContext(),"SOMETHING WENT WRONG!", Toast.LENGTH_SHORT).show()
+                                        ex.printStackTrace()
+                                    }
+                                } ?: {
                                     dataModel.addData(requireActivity().applicationContext, adapter.getData())
                                 }
                                 barCodeDialog.dismiss()

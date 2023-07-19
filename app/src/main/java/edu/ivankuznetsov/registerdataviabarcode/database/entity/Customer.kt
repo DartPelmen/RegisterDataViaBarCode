@@ -17,7 +17,7 @@ import java.util.UUID
    "phone": "+79990882846",
    "office": "VTiKG",
    "date": "1686888022",
-   "uuid": "6bc34baf-19c1-4343-8bb5-57413b54631f"
+   "idCustomer": "6bc34baf-19c1-4343-8bb5-57413b54631f"
 }
 *
 *

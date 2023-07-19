@@ -4,13 +4,17 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import edu.ivankuznetsov.registerdataviabarcode.database.DatabaseSingleton
 import edu.ivankuznetsov.registerdataviabarcode.database.entity.Customer
 import edu.ivankuznetsov.registerdataviabarcode.database.entity.Event
 import edu.ivankuznetsov.registerdataviabarcode.database.model.EventsCustomersCrossRef
+import kotlinx.coroutines.async
 import java.time.LocalDateTime
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
+import java.util.function.Supplier
 
 class CustomerViewModel: ViewModel() {
     private val executorService = Executors.newSingleThreadExecutor()
@@ -46,10 +50,13 @@ class CustomerViewModel: ViewModel() {
 
         }
     }
-    fun getAll(context: Context){
-        executorService.execute {
-            data.postValue(DatabaseSingleton.getInstance(context).database.customerDao().getAll().toMutableList()) }
-    }
+    fun getAll(context: Context): MutableList<Customer> = CompletableFuture
+        .supplyAsync({
+            DatabaseSingleton.getInstance(context).database.customerDao().getAll().toMutableList()
+                     },
+            executorService)
+        .get()
+
 
     fun getAllByDate(context: Context, date: LocalDateTime){
         executorService.execute {
