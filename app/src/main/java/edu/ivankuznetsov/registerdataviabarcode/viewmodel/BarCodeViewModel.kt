@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.google.mlkit.vision.barcode.common.Barcode
 
 class BarCodeViewModel : ViewModel() {
-    val barcodes = MutableLiveData<MutableList<Barcode>>()
+    private val barcodes = MutableLiveData<MutableList<Barcode>>()
     val shouldBind = MutableLiveData(false)
     fun setCodes(codes: MutableList<Barcode>){
         barcodes.postValue(codes)

@@ -37,9 +37,6 @@ import edu.ivankuznetsov.registerdataviabarcode.util.JsonConverter
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.BarCodeViewModel
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CameraXViewModel
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CustomerViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import java.lang.Exception
 import java.lang.ref.WeakReference
 import java.util.concurrent.Executors
 
@@ -65,8 +62,7 @@ class ScannerFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+        savedInstanceState: Bundle?): View {
         adapter = DialogPreviewAdapter()
         binding = FragmentScannerBinding.inflate(inflater,container,false)
         barCodeDialog = BottomSheetDialog(requireActivity())

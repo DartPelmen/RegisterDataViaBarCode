@@ -21,12 +21,14 @@ class DatabaseSingleton private constructor(context: Context) {
     val database: BarCodeDatabase
 
     init {
-        database = databaseBuilder(context, BarCodeDatabase::class.java, "barcodes-db").setQueryCallback(object : RoomDatabase.QueryCallback{
-            override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-                Log.d("SQLQUERY", sqlQuery)
-                bindArgs.forEach { Log.d("SQLARGS", it.toString()) }
-            }
-        },Executors.newSingleThreadExecutor()).build()
+        database = databaseBuilder(context, BarCodeDatabase::class.java, "barcodes-db")
+            .setQueryCallback(object : RoomDatabase.QueryCallback{
+                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                    Log.d("SQLQUERY", sqlQuery)
+                    bindArgs.forEach { Log.d("SQLARGS", it.toString()) }
+                }
+        },Executors.newSingleThreadExecutor())
+            .build()
     }
 
     @Database(

@@ -35,6 +35,7 @@ class EventsActivity : AppCompatActivity() {
             binding.recyclerView.layoutManager = LinearLayoutManager(this)
             binding.recyclerView.adapter = adapter
             binding.floatingActionButton.setOnClickListener {
+
                 eventsViewModel.addEvents(this, listOf(Event(UUID.randomUUID(),UUID.randomUUID().toString(), LocalDateTime.now(), LocalDateTime.now().plusDays(1))))
             }
             eventsViewModel.data.observe(this){

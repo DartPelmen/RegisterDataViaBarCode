@@ -15,22 +15,26 @@ class EventsViewModel: ViewModel() {
     }
     fun addEvents(context: Context, events: List<Event>){
         executorService.execute {
-            DatabaseSingleton.getInstance(context).database.eventsDao().addEvent(*events.toTypedArray())
+            DatabaseSingleton.getInstance(context)
+                .database.eventsDao().addEvent(*events.toTypedArray())
             getAll(context)
         }
     }
-    fun contains(event: Event): Boolean = data.value?.stream()?.anyMatch { x -> x.idEvent == event.idEvent } ?: false
+    fun contains(event: Event): Boolean =
+        data.value?.stream()?.anyMatch { x -> x.idEvent == event.idEvent } ?: false
 
 
     fun getAll(context: Context){
         executorService.execute {
-            data.postValue(DatabaseSingleton.getInstance(context).database.eventsDao().getAll().toMutableList()) }
+            data.postValue(DatabaseSingleton.getInstance(context)
+                .database.eventsDao().getAll().toMutableList()) }
     }
 
 
     fun dropEvents(context: Context, events: List<Event>){
         executorService.execute {
-            DatabaseSingleton.getInstance(context).database.eventsDao().dropEvent(*events.toTypedArray())
+            DatabaseSingleton.getInstance(context)
+                .database.eventsDao().dropEvent(*events.toTypedArray())
             val list = data.value
             list?.let {
                 data.postValue(it.filterNot { x -> x in events }.toMutableList())
@@ -40,7 +44,8 @@ class EventsViewModel: ViewModel() {
 
     fun updateEvent(context: Context, events: List<Event>){
         executorService.execute {
-            DatabaseSingleton.getInstance(context).database.eventsDao().editEvent(*events.toTypedArray())
+            DatabaseSingleton.getInstance(context)
+                .database.eventsDao().editEvent(*events.toTypedArray())
             val list = data.value
             events.forEach {
                 list?.set(list.indexOf(it), it)

@@ -24,29 +24,28 @@ class CustomerViewModel: ViewModel() {
         data.value = mutableListOf()
     }
     fun addData(context: Context, customer: List<Customer>){
-        Log.d("CUSTOMERS", "ADDING CUSTOMERS")
-        Log.d("CUSTOMERS", customer.size.toString())
-        customer.forEach {
-            Log.d("CUSTOMERS", it.idCustomer.toString())
-        }
         executorService.execute {
             currentEvent.value?.let {
-                Log.d("CUSTOMERS", "CURRENT EVENT IS ${it.idEvent}")
-                DatabaseSingleton.getInstance(context).database.customerDao().addCustomer(*customer.toTypedArray())
+                DatabaseSingleton.getInstance(context)
+                    .database.customerDao().addCustomer(*customer.toTypedArray())
                 val crossList = customer.map { x -> EventsCustomersCrossRef(x.idCustomer,it.idEvent) }
-                DatabaseSingleton.getInstance(context).database.crossDao().addCrossData(*crossList.toTypedArray())
-                data.postValue(DatabaseSingleton.getInstance(context).database.customerDao().getAllByEventId(UUID.fromString(it.idEvent.toString())))
-            }?: Log.d("CUSTOMERS", "CURRENT EVENT IS NULL")
+                DatabaseSingleton.getInstance(context)
+                    .database.crossDao().addCrossData(*crossList.toTypedArray())
+                data.postValue(DatabaseSingleton.getInstance(context)
+                    .database.customerDao().getAllByEventId(UUID.fromString(it.idEvent.toString())))
+            }
 
         }
     }
-    fun contains(customer: Customer): Boolean = data.value?.stream()?.anyMatch { x -> x.idCustomer == customer.idCustomer } ?: false
+    fun contains(customer: Customer): Boolean
+    = data.value?.stream()?.anyMatch { x -> x.idCustomer == customer.idCustomer } ?: false
 
     fun setCurrentCustomer(uuid: String, context: Context){
         executorService.execute {
-            currentEvent.postValue(DatabaseSingleton.getInstance(context).database.eventsDao().getByUUID(UUID.fromString(uuid)))
-            Log.d("CUSTOMERS", "CURRENT UUID FOR SET CURRENT EVENT IS $uuid")
-            data.postValue(DatabaseSingleton.getInstance(context).database.customerDao().getAllByEventId(UUID.fromString(uuid)))
+            currentEvent.postValue(DatabaseSingleton.getInstance(context)
+                .database.eventsDao().getByUUID(UUID.fromString(uuid)))
+            data.postValue(DatabaseSingleton.getInstance(context)
+                .database.customerDao().getAllByEventId(UUID.fromString(uuid)))
 
         }
     }
@@ -60,12 +59,14 @@ class CustomerViewModel: ViewModel() {
 
     fun getAllByDate(context: Context, date: LocalDateTime){
         executorService.execute {
-            data.postValue(DatabaseSingleton.getInstance(context).database.customerDao().getAllByDate(date).toMutableList()) }
+            data.postValue(DatabaseSingleton.getInstance(context)
+                .database.customerDao().getAllByDate(date).toMutableList()) }
     }
 
     fun dropData(context: Context, customer: List<Customer>){
         executorService.execute {
-            DatabaseSingleton.getInstance(context).database.customerDao().dropCustomer(*customer.toTypedArray())
+            DatabaseSingleton.getInstance(context)
+                .database.customerDao().dropCustomer(*customer.toTypedArray())
             val list = data.value
             list?.let {
                 data.postValue(it.filterNot { x -> x in customer }.toMutableList())
@@ -75,7 +76,8 @@ class CustomerViewModel: ViewModel() {
 
     fun updateData(context: Context, customer: List<Customer>){
         executorService.execute {
-            DatabaseSingleton.getInstance(context).database.customerDao().editCustomer(*customer.toTypedArray())
+            DatabaseSingleton.getInstance(context)
+                .database.customerDao().editCustomer(*customer.toTypedArray())
             val list = data.value
             customer.forEach {
                 list?.set(list.indexOf(it), it)
