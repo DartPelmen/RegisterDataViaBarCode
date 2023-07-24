@@ -32,7 +32,6 @@ class DataListFragment : Fragment() {
     private lateinit var controller: NavController
     private lateinit var dataModel: CustomerViewModel
     private lateinit var adapter: CustomersListAdapter
-    var clickedNum = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         controller = findNavController()
@@ -67,7 +66,7 @@ class DataListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.dataList.layoutManager = LinearLayoutManager(requireActivity())
-//        binding.dataList.addItemDecoration(DividerItemDecoration(requireActivity(),DividerItemDecoration.VERTICAL))
+//      binding.dataList.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL))
         binding.dataList.adapter = adapter
         binding.addDataButton.setOnClickListener {
             val action = DataListFragmentDirections.actionDataListFragmentToScannerFragment()

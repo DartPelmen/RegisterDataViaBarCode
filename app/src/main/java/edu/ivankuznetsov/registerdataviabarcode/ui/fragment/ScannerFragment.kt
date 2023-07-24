@@ -54,6 +54,28 @@ class ScannerFragment : Fragment() {
     private lateinit var dataModel: CustomerViewModel
     private lateinit var adapter: DialogPreviewAdapter
     private val analysisExecutor = Executors.newSingleThreadExecutor()
+
+    private val simpleItemTouchCallback = object : ItemTouchHelper
+        .SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+        override fun onMove(recyclerView: RecyclerView,
+                            viewHolder: RecyclerView.ViewHolder,
+                            target: RecyclerView.ViewHolder): Boolean {
+            return false
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
+            val position = viewHolder.bindingAdapterPosition
+            val list = mutableListOf<Customer>()
+            list.addAll(adapter.getData())
+            list.remove(adapter.getDataByPosition(position))
+            val productDiffUtilCallback =
+                CustomersDiffUtil(adapter.getData(), list)
+            val productDiffResult =
+                DiffUtil.calculateDiff(productDiffUtilCallback)
+            adapter.setCameras(list)
+            productDiffResult.dispatchUpdatesTo(adapter)
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         barCodeViewModel = requireActivity().viewModels<BarCodeViewModel>().value
@@ -74,45 +96,7 @@ class ScannerFragment : Fragment() {
 //        )
         dialogBinding.dialogRV.adapter = adapter
 
-        val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
-            ItemTouchHelper.SimpleCallback(
-                0,
-                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-            ) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                return false
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-                //Remove swiped item from list and notify the RecyclerView
-                val position = viewHolder.bindingAdapterPosition
-                Log.d(TAG,"REMOVE")
-                val list = mutableListOf<Customer>()
-                list.addAll(adapter.getData())
-                Log.d(TAG,"ADAPTER DATA IS ${adapter.getData()}")
-
-                Log.d(TAG,"ADAPTER DATA SIZE IS ${adapter.getData().size}")
-
-                Log.d(TAG,"POSITION $position")
-                list.remove(adapter.getDataByPosition(position))
-                Log.d(TAG,"NOW IT IS ${list.size}")
-                Log.d(TAG,"DATA IS $list")
-
-                val productDiffUtilCallback =
-                    CustomersDiffUtil(adapter.getData(), list)
-                val productDiffResult =
-                    DiffUtil.calculateDiff(productDiffUtilCallback)
-                adapter.setCameras(list)
-                productDiffResult.dispatchUpdatesTo(adapter)
-            }
-        }
-
-        val itemTouchHelper = ItemTouchHelper(simpleItemTouchCallback)
-        itemTouchHelper.attachToRecyclerView(dialogBinding.dialogRV)
+        ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(dialogBinding.dialogRV)
 
         barCodeDialog.setContentView(dialogBinding.root)
         return binding.root
@@ -177,10 +161,11 @@ class ScannerFragment : Fragment() {
             .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS).build()
 
         val barcodeScanner: BarcodeScanner = BarcodeScanning.getClient(options)
-        analysisUseCase = ImageAnalysis.Builder().setResolutionSelector(ResolutionSelector
-            .Builder()
-            .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
-            .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+        analysisUseCase = ImageAnalysis.Builder()
+            .setResolutionSelector(ResolutionSelector
+                .Builder()
+                .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
+                .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
             .build())
             .setTargetRotation(binding.previewView.display.rotation)
             .build()
@@ -210,69 +195,24 @@ class ScannerFragment : Fragment() {
         barcodeScanner: BarcodeScanner,
         imageProxy: ImageProxy
     ) {
-            val inputImage =
-                InputImage.fromMediaImage(imageProxy.image!!, imageProxy.imageInfo.rotationDegrees)
-            barcodeScanner.process(inputImage)
-                .addOnSuccessListener { barcodes ->
-
-
-                    barCodeViewModel.setCodes(barcodes)
-                    if (barcodes.size > 0) {
-                        requireActivity().runOnUiThread {
-                            cameraProvider.unbind(analysisUseCase)
-                        }
-                        val list = JsonConverter.barCodeValuesToData(barcodes)
-                        list?.let { models ->
-                            val productDiffUtilCallback =
-                                CustomersDiffUtil(adapter.getData(), models)
-                            val productDiffResult =
-                                DiffUtil.calculateDiff(productDiffUtilCallback)
-                            adapter.setCameras(models)
-                            productDiffResult.dispatchUpdatesTo(adapter)
-
-                            dialogBinding.button.setOnClickListener {
-                                dataModel.getAll(requireContext()).let {
-                                    try {
-                                        if(adapter.getData().stream().anyMatch {x ->
-                                                Log.d(TAG, x.toString())
-                                                it.contains(x) }) {
-                                            MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme).setPositiveButton("OK"){ x, _->
-                                                requireActivity().runOnUiThread {
-                                                    cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
-                                                }
-                                                x.dismiss()
-                                            }.setMessage("Обнаружены данные, которые уже добавлены в список!").show()
-                                        }else {
-                                            dataModel.addData(requireActivity().applicationContext,adapter.getData())
-                                        }
-                                    }catch (ex: Exception){
-                                        Toast.makeText(requireContext(),"SOMETHING WENT WRONG!", Toast.LENGTH_SHORT).show()
-                                        ex.printStackTrace()
-                                    }
-                                } ?: {
-                                    dataModel.addData(requireActivity().applicationContext, adapter.getData())
-                                }
-                                barCodeDialog.dismiss()
-                            }
-
-                            barCodeDialog.setOnCancelListener {
-                                requireActivity().runOnUiThread {
-                                    cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
-                                }
-                            }
-                            barCodeDialog.setOnDismissListener {
-                                requireActivity().runOnUiThread {
-                                    cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
-                                }
-                            }
-                            barCodeDialog.show()
-                        } ?: MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme).setTitle("Ошибка сканирования").setMessage("Невозможно извлечь информацию из QR-кода").setPositiveButton("OK"){
-                            x,_ ->
-                            requireActivity().runOnUiThread {
-                                cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
-                            }
-                            x.dismiss()
-                        }.show()
+        barcodeScanner.process(InputImage.fromMediaImage(imageProxy.image!!,
+            imageProxy.imageInfo.rotationDegrees))
+            .addOnSuccessListener { barcodes ->
+                barCodeViewModel.setCodes(barcodes)
+                if (barcodes.size > 0) {
+                    requireActivity().runOnUiThread {
+                        cameraProvider.unbind(analysisUseCase)
+                    }
+                    val list = JsonConverter.barCodeValuesToData(barcodes)
+                    list?.let { models ->
+                        val productDiffUtilCallback = CustomersDiffUtil(adapter.getData(), models)
+                        val productDiffResult = DiffUtil.calculateDiff(productDiffUtilCallback)
+                        adapter.setCameras(models)
+                        productDiffResult.dispatchUpdatesTo(adapter)
+                        configureAddDialog()
+                        barCodeDialog.show()
+                        } ?: showErrorMessage("Ошибка сканирования",
+                        "Невозможно извлечь информацию из QR-кода")
                     }
                 }
                 .addOnFailureListener {
@@ -285,16 +225,58 @@ class ScannerFragment : Fragment() {
 
     }
 
+    private fun configureAddDialog() {
+        dialogBinding.button.setOnClickListener {
+            try {
+                if(adapter.getData().stream()
+                        .anyMatch {x -> dataModel.getAll(requireContext()).contains(x) }) {
+                    showErrorMessage("Ошибка добавления данных",
+                        "Обнаружены данные, которые уже добавлены в список!")
+                } else {
+                    dataModel.addData(requireActivity().applicationContext,
+                        adapter.getData())
+                }
+            } catch (ex: Exception) {
+                Toast.makeText(requireContext(),"SOMETHING WENT WRONG!",
+                    Toast.LENGTH_SHORT).show()
+                ex.printStackTrace()
+            }
+            barCodeDialog.dismiss()
+        }
+        barCodeDialog.setOnCancelListener {
+            requireActivity().runOnUiThread {
+                cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
+            }
+        }
+        barCodeDialog.setOnDismissListener {
+            requireActivity().runOnUiThread {
+                cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
+            }
+        }
+    }
+
     override fun onPause() {
         super.onPause()
         Log.e(TAG, "Scan to pause")
     }
-    companion object {
-        val TAG = ScannerFragment::class.java.simpleName
-    }
-
     override fun onStop() {
         super.onStop()
 
     }
+
+    private fun showErrorMessage(title: String, text: String){
+        MaterialAlertDialogBuilder(requireContext(),
+            R.style.AlertDialogTheme).setTitle(title).setPositiveButton("OK"){ x, _->
+            requireActivity().runOnUiThread {
+                cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
+            }
+            x.dismiss()
+        }.setMessage(text).show()
+    }
+
+    companion object {
+        val TAG = ScannerFragment::class.java.simpleName
+    }
+
+
 }

@@ -1,42 +1,88 @@
 package edu.ivankuznetsov.registerdataviabarcode.ui.activity
 
 import android.Manifest
-import androidx.appcompat.app.AppCompatActivity
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
+import android.widget.TimePicker
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.lifecycle.ViewModel
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.NavigationUI
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import edu.ivankuznetsov.registerdataviabarcode.R
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.snackbar.Snackbar
 import edu.ivankuznetsov.registerdataviabarcode.database.entity.Event
 import edu.ivankuznetsov.registerdataviabarcode.databinding.ActivityEventsBinding
+import edu.ivankuznetsov.registerdataviabarcode.databinding.EventNewDialogBinding
 import edu.ivankuznetsov.registerdataviabarcode.ui.adapter.EventsAdapter
-import edu.ivankuznetsov.registerdataviabarcode.util.CustomersDiffUtil
 import edu.ivankuznetsov.registerdataviabarcode.util.EventsDiffUtil
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.EventsViewModel
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 class EventsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEventsBinding
+    private lateinit var addEventDialog: BottomSheetDialog
+    private lateinit var addEventDialogBinding: EventNewDialogBinding
+    private  var startDate: LocalDateTime? = null
+    private  var endDate: LocalDateTime? = null
     private val eventsViewModel: EventsViewModel by viewModels()
     private val cameraContract = registerForActivityResult(ActivityResultContracts.RequestPermission()){ it ->
         if(it){
             binding = ActivityEventsBinding.inflate(layoutInflater)
             setContentView(binding.root)
             val adapter = EventsAdapter()
-
+            addEventDialog = BottomSheetDialog(this)
+            addEventDialogBinding = EventNewDialogBinding.inflate(addEventDialog.layoutInflater)
+            addEventDialogBinding.startDateTimeButton.setOnClickListener {
+                val picker = DatePickerDialog(this)
+                picker.setOnDateSetListener { _, year, month, day -> TimePickerDialog(this,
+                    { _, hour, minute ->
+                        startDate = LocalDateTime.of(year,month,day,hour,minute)
+                        addEventDialogBinding.startDateTime.text = startDate!!.format(
+                            DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
+                    }, 0, 0, true).show() }
+                picker.show()
+            }
+            addEventDialogBinding.endTimeButton.setOnClickListener {
+                val picker = DatePickerDialog(this)
+                picker.setOnDateSetListener { _, year, month, day -> TimePickerDialog(this,
+                    { _, hour, minute ->
+                        endDate = LocalDateTime.of(year,month,day,hour,minute)
+                        addEventDialogBinding.endDateTime.text = endDate!!.format(
+                            DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
+                    }, 0, 0, true).show() }
+                picker.show()
+            }
+            addEventDialogBinding.addButton.setOnClickListener {
+                addEventDialogBinding.eventTitle.text?.let {eventTitle ->
+                    if(eventTitle.isBlank()) {
+                        Snackbar.make(this,addEventDialogBinding.addButton,"Укажите название мероприятия!",Snackbar.LENGTH_SHORT).show()
+                    } else{
+                        startDate?.let {start ->
+                            endDate?.let {end ->
+                                if(start.isAfter(end)){
+                                    Snackbar.make(this,addEventDialogBinding.addButton,"Конец мероприятия не может быть раньше начала!",Snackbar.LENGTH_SHORT).show()
+                                } else {
+                                    eventsViewModel.addEvents(this, listOf(Event(title = eventTitle.toString(), startDateTime = start, endDateTime = end)))
+                                    addEventDialog.dismiss()
+                                }
+                            } ?: Snackbar.make(this,addEventDialogBinding.addButton,"Укажите время конца мероприятия!",Snackbar.LENGTH_SHORT).show()
+                        } ?: Snackbar.make(this,addEventDialogBinding.addButton,"Укажите время начала мероприятия!",Snackbar.LENGTH_SHORT).show()
+                    }
+                } ?: Snackbar.make(this,addEventDialogBinding.addButton,"Укажите название мероприятия!",Snackbar.LENGTH_SHORT).show()
+            }
+            addEventDialog.setContentView(addEventDialogBinding.root)
             eventsViewModel.getAll(this)
             binding.recyclerView.layoutManager = LinearLayoutManager(this)
             binding.recyclerView.adapter = adapter
             binding.floatingActionButton.setOnClickListener {
-
-                eventsViewModel.addEvents(this, listOf(Event(UUID.randomUUID(),UUID.randomUUID().toString(), LocalDateTime.now(), LocalDateTime.now().plusDays(1))))
+                addEventDialog.show()
             }
             eventsViewModel.data.observe(this){
                 val productDiffUtilCallback =
@@ -55,6 +101,7 @@ class EventsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cameraContract.launch(Manifest.permission.CAMERA)
+
 
     }
 }
