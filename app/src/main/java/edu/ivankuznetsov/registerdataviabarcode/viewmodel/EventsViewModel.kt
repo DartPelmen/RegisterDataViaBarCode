@@ -1,10 +1,12 @@
 package edu.ivankuznetsov.registerdataviabarcode.viewmodel
 
 import android.content.Context
+import android.provider.ContactsContract.Data
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import edu.ivankuznetsov.registerdataviabarcode.database.DatabaseSingleton
 import edu.ivankuznetsov.registerdataviabarcode.database.entity.Event
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 
 class EventsViewModel: ViewModel() {
@@ -29,6 +31,8 @@ class EventsViewModel: ViewModel() {
             data.postValue(DatabaseSingleton.getInstance(context)
                 .database.eventsDao().getAll().toMutableList()) }
     }
+
+    fun getAllEvents(context: Context) = CompletableFuture.supplyAsync( { DatabaseSingleton.getInstance(context).database.eventsDao().getAll()}, executorService ).get()
 
 
     fun dropEvents(context: Context, events: List<Event>){
