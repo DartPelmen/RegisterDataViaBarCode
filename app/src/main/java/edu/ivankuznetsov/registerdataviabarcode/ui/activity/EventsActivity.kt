@@ -12,14 +12,19 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import edu.ivankuznetsov.registerdataviabarcode.R
 import edu.ivankuznetsov.registerdataviabarcode.database.entity.Event
 import edu.ivankuznetsov.registerdataviabarcode.databinding.ActivityEventsBinding
 import edu.ivankuznetsov.registerdataviabarcode.databinding.EventNewDialogBinding
 import edu.ivankuznetsov.registerdataviabarcode.ui.adapter.EventsAdapter
 import edu.ivankuznetsov.registerdataviabarcode.util.EventsDiffUtil
+import edu.ivankuznetsov.registerdataviabarcode.util.showErrorMessage
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.EventsViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -46,7 +51,7 @@ class EventsActivity : AppCompatActivity() {
                         TimePickerDialog(
                             this,
                             { _, hour, minute ->
-                                startDate = LocalDateTime.of(year, month, day, hour, minute)
+                                startDate = LocalDateTime.of(year, month+1, day, hour, minute)
                                 addEventDialogBinding.startDateTime.text = startDate!!.format(
                                     DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
                                 )
@@ -61,7 +66,7 @@ class EventsActivity : AppCompatActivity() {
                         TimePickerDialog(
                             this,
                             { _, hour, minute ->
-                                endDate = LocalDateTime.of(year, month, day, hour, minute)
+                                endDate = LocalDateTime.of(year, month+1, day, hour, minute)
                                 addEventDialogBinding.endDateTime.text = endDate!!.format(
                                     DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
                                 )
@@ -137,6 +142,39 @@ class EventsActivity : AppCompatActivity() {
                 eventsViewModel.getAll(this)
                 binding.recyclerView.layoutManager = LinearLayoutManager(this)
                 binding.recyclerView.adapter = adapter
+
+                val itemTouchHelper = ItemTouchHelper(object :
+                    ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+                    override fun onMove(
+                        recyclerView: RecyclerView,
+                        viewHolder: RecyclerView.ViewHolder,
+                        target: RecyclerView.ViewHolder
+                    ): Boolean {
+                        return false
+                    }
+
+                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
+                        val position = viewHolder.bindingAdapterPosition
+                        if (eventsViewModel.checkCustomers(
+                                this@EventsActivity,
+                                adapter.getEvents()[position]
+                            )
+                        ) {
+                            showErrorMessage(this@EventsActivity, "В мероприятии есть слушатели!", "Сперва удалите участников мероприятия!") { x, _ ->
+                                x.dismiss()
+                            }
+                            adapter.notifyItemChanged(viewHolder.layoutPosition)
+                        }
+                        else{
+                            eventsViewModel.dropEvents(
+                                this@EventsActivity,
+                                listOf(adapter.getEvents()[position])
+                            )
+                        }
+                    }
+                })
+                itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+
                 binding.floatingActionButton.setOnClickListener {
                     addEventDialog.show()
                 }
@@ -154,10 +192,15 @@ class EventsActivity : AppCompatActivity() {
             }
         }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cameraContract.launch(Manifest.permission.CAMERA)
 
 
+    }
+
+    companion object{
+        private val TAG = EventsActivity::class.java.simpleName
     }
 }

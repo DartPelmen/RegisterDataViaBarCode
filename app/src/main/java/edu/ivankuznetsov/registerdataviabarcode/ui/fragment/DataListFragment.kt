@@ -14,7 +14,9 @@ import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import edu.ivankuznetsov.registerdataviabarcode.database.entity.Customer
 import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentDataListBinding
 import edu.ivankuznetsov.registerdataviabarcode.ui.adapter.CustomersListAdapter
@@ -38,7 +40,7 @@ class DataListFragment : Fragment() {
         dataModel = requireActivity().viewModels<CustomerViewModel>().value
         adapter = CustomersListAdapter()
 
-        dataModel.data.observe(requireActivity()){
+        dataModel.data.observe(requireActivity()) {
             Log.d("CUSTOMERS", "OBSERVING CUSTOMERS")
             val productDiffUtilCallback =
                 CustomersDiffUtil(adapter.getCustomers(), it)
@@ -49,8 +51,8 @@ class DataListFragment : Fragment() {
         }
 
         requireActivity().intent.getStringExtra("eventId")?.let {
-            Toast.makeText(requireContext(),it, Toast.LENGTH_SHORT).show()
-            dataModel.setCurrentCustomer(it,requireContext())
+            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+            dataModel.setCurrentCustomer(it, requireContext())
         }
     }
 
@@ -59,7 +61,7 @@ class DataListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        binding = FragmentDataListBinding.inflate(inflater,container,false)
+        binding = FragmentDataListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -68,26 +70,37 @@ class DataListFragment : Fragment() {
         binding.dataList.layoutManager = LinearLayoutManager(requireActivity())
 //      binding.dataList.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL))
         binding.dataList.adapter = adapter
-        binding.addDataButton.setOnClickListener {
-            val action = DataListFragmentDirections.actionDataListFragmentToScannerFragment()
-            controller.navigate(action)
-        }
+        val itemTouchHelper = ItemTouchHelper(object :
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
 
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
+                val position = viewHolder.bindingAdapterPosition
+                dataModel.dropData(requireContext(), listOf(adapter.getCustomers()[position]))
+            }
+        })
+        itemTouchHelper.attachToRecyclerView(binding.dataList)
         binding.toExcelButton.setOnClickListener {
-            dataModel.data.value?.let{
-             value -> exportToExcel(value)
+            dataModel.data.value?.let { value ->
+                exportToExcel(value)
             }
         }
     }
 
-    private fun exportToExcel(customerList : List<Customer>) {
+    private fun exportToExcel(customerList: List<Customer>) {
         val workbook = fillWorkBookData(customerList, createWorkBookWithHeader())
         val excelFile = saveExcelFile(workbook)
         shareExcelFile(excelFile)
     }
 
 
-    private fun createWorkBookWithHeader(): HSSFWorkbook{
+    private fun createWorkBookWithHeader(): HSSFWorkbook {
         val workbook = HSSFWorkbook()
         val firstSheet = workbook.createSheet("Sheet No 1")
         val headers = firstSheet.createRow(0)
@@ -104,8 +117,10 @@ class DataListFragment : Fragment() {
         return workbook
     }
 
-    private fun fillWorkBookData(customerList: List<Customer>,
-                                 workbook: HSSFWorkbook): HSSFWorkbook{
+    private fun fillWorkBookData(
+        customerList: List<Customer>,
+        workbook: HSSFWorkbook
+    ): HSSFWorkbook {
         for (i in 1 until customerList.size) {
             val row = workbook.getSheetAt(0).createRow(i)
             val dataFirstName = row.createCell(1)
@@ -122,11 +137,15 @@ class DataListFragment : Fragment() {
         return workbook
     }
 
-    private fun saveExcelFile(workbook: HSSFWorkbook): File{
+    private fun saveExcelFile(workbook: HSSFWorkbook): File {
         var fos: FileOutputStream? = null
         val pathPrefix = Environment.getExternalStorageDirectory().toString()
-        val file = File(pathPrefix, "Documents/sample ${LocalDateTime.now()
-                .toEpochSecond(ZoneOffset.UTC)}.xls")
+        val file = File(
+            pathPrefix, "Documents/sample ${
+                LocalDateTime.now()
+                    .toEpochSecond(ZoneOffset.UTC)
+            }.xls"
+        )
         try {
             fos = FileOutputStream(file)
             workbook.write(fos)
@@ -144,13 +163,18 @@ class DataListFragment : Fragment() {
         }
         return file
     }
-    private fun shareExcelFile(file: File){
+
+    private fun shareExcelFile(file: File) {
         val intentShareFile = Intent(Intent.ACTION_SEND)
         if (file.exists()) {
             intentShareFile.type = "application/vnd.ms-excel"
-            intentShareFile.putExtra(Intent.EXTRA_STREAM,
-                FileProvider.getUriForFile(requireContext(),
-                    "edu.ivankuznetsov.registerdataviabarcode.provider", file))
+            intentShareFile.putExtra(
+                Intent.EXTRA_STREAM,
+                FileProvider.getUriForFile(
+                    requireContext(),
+                    "edu.ivankuznetsov.registerdataviabarcode.provider", file
+                )
+            )
             intentShareFile.putExtra(Intent.EXTRA_SUBJECT, "Sharing File...")
             intentShareFile.putExtra(Intent.EXTRA_TEXT, "Sharing File...")
             startActivity(Intent.createChooser(intentShareFile, "Share File"))

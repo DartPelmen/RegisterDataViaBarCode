@@ -34,6 +34,7 @@ import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentScannerBindi
 import edu.ivankuznetsov.registerdataviabarcode.ui.adapter.DialogPreviewAdapter
 import edu.ivankuznetsov.registerdataviabarcode.util.CustomersDiffUtil
 import edu.ivankuznetsov.registerdataviabarcode.util.JsonConverter
+import edu.ivankuznetsov.registerdataviabarcode.util.showErrorMessage
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.BarCodeViewModel
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CameraXViewModel
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CustomerViewModel
@@ -48,7 +49,7 @@ class ScannerFragment : Fragment() {
     private lateinit var previewUseCase: Preview
     private lateinit var analysisUseCase: ImageAnalysis
     private lateinit var viewModel: CameraXViewModel
-    private lateinit var barCodeDialog:BottomSheetDialog
+    private lateinit var barCodeDialog: BottomSheetDialog
     private lateinit var binding: FragmentScannerBinding
     private lateinit var dialogBinding: FragmentBarCodeInfoDialogListDialogBinding
     private lateinit var dataModel: CustomerViewModel
@@ -56,10 +57,12 @@ class ScannerFragment : Fragment() {
     private val analysisExecutor = Executors.newSingleThreadExecutor()
 
     private val simpleItemTouchCallback = object : ItemTouchHelper
-        .SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-        override fun onMove(recyclerView: RecyclerView,
-                            viewHolder: RecyclerView.ViewHolder,
-                            target: RecyclerView.ViewHolder): Boolean {
+    .SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
             return false
         }
 
@@ -76,6 +79,7 @@ class ScannerFragment : Fragment() {
             productDiffResult.dispatchUpdatesTo(adapter)
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         barCodeViewModel = requireActivity().viewModels<BarCodeViewModel>().value
@@ -84,11 +88,13 @@ class ScannerFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?): View {
+        savedInstanceState: Bundle?
+    ): View {
         adapter = DialogPreviewAdapter()
-        binding = FragmentScannerBinding.inflate(inflater,container,false)
+        binding = FragmentScannerBinding.inflate(inflater, container, false)
         barCodeDialog = BottomSheetDialog(requireActivity())
-        dialogBinding = FragmentBarCodeInfoDialogListDialogBinding.inflate(barCodeDialog.layoutInflater)
+        dialogBinding =
+            FragmentBarCodeInfoDialogListDialogBinding.inflate(barCodeDialog.layoutInflater)
         dialogBinding.dialogRV.layoutManager = LinearLayoutManager(requireActivity())
 //        dialogBinding.dialogRV.addItemDecoration(
 //            DividerItemDecoration(requireActivity(),
@@ -119,12 +125,13 @@ class ScannerFragment : Fragment() {
                 bindAnalyseUseCase()
             }
         }
-        barCodeViewModel.shouldBind.observe(this){
-            if(it){
+        barCodeViewModel.shouldBind.observe(this) {
+            if (it) {
                 bindAnalyseUseCase()
             }
         }
     }
+
     private fun bindPreviewUseCase() {
 
         if (this::previewUseCase.isInitialized) {
@@ -154,7 +161,7 @@ class ScannerFragment : Fragment() {
     private fun bindAnalyseUseCase() {
         // Note that if you know which format of barcode your app is dealing with,
         // detection will be faster
-        if(this::analysisUseCase.isInitialized){
+        if (this::analysisUseCase.isInitialized) {
             cameraProvider.unbind(analysisUseCase)
         }
         val options = BarcodeScannerOptions.Builder()
@@ -162,11 +169,13 @@ class ScannerFragment : Fragment() {
 
         val barcodeScanner: BarcodeScanner = BarcodeScanning.getClient(options)
         analysisUseCase = ImageAnalysis.Builder()
-            .setResolutionSelector(ResolutionSelector
-                .Builder()
-                .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
-                .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
-            .build())
+            .setResolutionSelector(
+                ResolutionSelector
+                    .Builder()
+                    .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
+                    .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                    .build()
+            )
             .setTargetRotation(binding.previewView.display.rotation)
             .build()
         // Initialize our background executor
@@ -191,12 +200,16 @@ class ScannerFragment : Fragment() {
     }
 
     @androidx.annotation.OptIn(androidx.camera.core.ExperimentalGetImage::class)
-    private fun  processImageProxy(
+    private fun processImageProxy(
         barcodeScanner: BarcodeScanner,
         imageProxy: ImageProxy
     ) {
-        barcodeScanner.process(InputImage.fromMediaImage(imageProxy.image!!,
-            imageProxy.imageInfo.rotationDegrees))
+        barcodeScanner.process(
+            InputImage.fromMediaImage(
+                imageProxy.image!!,
+                imageProxy.imageInfo.rotationDegrees
+            )
+        )
             .addOnSuccessListener { barcodes ->
                 barCodeViewModel.setCodes(barcodes)
                 if (barcodes.size > 0) {
@@ -211,16 +224,23 @@ class ScannerFragment : Fragment() {
                         productDiffResult.dispatchUpdatesTo(adapter)
                         configureAddDialog()
                         barCodeDialog.show()
-                        } ?: showErrorMessage("Ошибка сканирования",
-                        "Невозможно извлечь информацию из QR-кода")
+                    } ?: showErrorMessage(
+                        requireActivity(), "Ошибка сканирования",
+                        "Невозможно извлечь информацию из QR-кода"
+                    ) { x, _ ->
+                        requireActivity().runOnUiThread {
+                            cameraProvider.bindToLifecycle(this, cameraSelector, analysisUseCase)
+                        }
+                        x.dismiss()
                     }
                 }
-                .addOnFailureListener {
-                    Log.e(TAG, it.message ?: it.toString())
-                }
-                .addOnCompleteListener {
-                    imageProxy.close()
-                }
+            }
+            .addOnFailureListener {
+                Log.e(TAG, it.message ?: it.toString())
+            }
+            .addOnCompleteListener {
+                imageProxy.close()
+            }
 
 
     }
@@ -228,29 +248,41 @@ class ScannerFragment : Fragment() {
     private fun configureAddDialog() {
         dialogBinding.button.setOnClickListener {
             try {
-                if(adapter.getData().stream()
-                        .anyMatch {x -> dataModel.getAll(requireContext()).contains(x) }) {
-                    showErrorMessage("Ошибка добавления данных",
-                        "Обнаружены данные, которые уже добавлены в список!")
+                if (adapter.getData().stream()
+                        .anyMatch { x -> dataModel.getAll(requireContext()).contains(x) }
+                ) {
+                    showErrorMessage(
+                        requireActivity(), "Ошибка добавления данных",
+                        "Обнаружены данные, которые уже добавлены в список!"
+                    ) { x, _ ->
+                        requireActivity().runOnUiThread {
+                            cameraProvider.bindToLifecycle(this, cameraSelector, analysisUseCase)
+                        }
+                        x.dismiss()
+                    }
                 } else {
-                    dataModel.addData(requireActivity().applicationContext,
-                        adapter.getData())
+                    dataModel.addData(
+                        requireActivity().applicationContext,
+                        adapter.getData()
+                    )
                 }
             } catch (ex: Exception) {
-                Toast.makeText(requireContext(),"SOMETHING WENT WRONG!",
-                    Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(), "SOMETHING WENT WRONG!",
+                    Toast.LENGTH_SHORT
+                ).show()
                 ex.printStackTrace()
             }
             barCodeDialog.dismiss()
         }
         barCodeDialog.setOnCancelListener {
             requireActivity().runOnUiThread {
-                cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
+                cameraProvider.bindToLifecycle(this, cameraSelector, analysisUseCase)
             }
         }
         barCodeDialog.setOnDismissListener {
             requireActivity().runOnUiThread {
-                cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
+                cameraProvider.bindToLifecycle(this, cameraSelector, analysisUseCase)
             }
         }
     }
@@ -259,20 +291,12 @@ class ScannerFragment : Fragment() {
         super.onPause()
         Log.e(TAG, "Scan to pause")
     }
+
     override fun onStop() {
         super.onStop()
 
     }
 
-    private fun showErrorMessage(title: String, text: String){
-        MaterialAlertDialogBuilder(requireContext(),
-            R.style.AlertDialogTheme).setTitle(title).setPositiveButton("OK"){ x, _->
-            requireActivity().runOnUiThread {
-                cameraProvider.bindToLifecycle(this,cameraSelector,analysisUseCase)
-            }
-            x.dismiss()
-        }.setMessage(text).show()
-    }
 
     companion object {
         val TAG = ScannerFragment::class.java.simpleName

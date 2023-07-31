@@ -5,6 +5,7 @@ import android.provider.ContactsContract.Data
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import edu.ivankuznetsov.registerdataviabarcode.database.DatabaseSingleton
+import edu.ivankuznetsov.registerdataviabarcode.database.entity.Customer
 import edu.ivankuznetsov.registerdataviabarcode.database.entity.Event
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
@@ -34,6 +35,9 @@ class EventsViewModel: ViewModel() {
 
     fun getAllEvents(context: Context) = CompletableFuture.supplyAsync( { DatabaseSingleton.getInstance(context).database.eventsDao().getAll()}, executorService ).get()
 
+    fun checkCustomers(context: Context, event: Event) =
+        CompletableFuture.supplyAsync { DatabaseSingleton.getInstance(context)
+            .database.customerDao().getAllByEventId(event.idEvent).size!=0 }.get()
 
     fun dropEvents(context: Context, events: List<Event>){
         executorService.execute {
