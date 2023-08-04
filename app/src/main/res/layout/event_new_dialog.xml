@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="TextView" />
+            android:text="Не выбрано" />
 
         <Button
             android:id="@+id/startDateTimeButton"
@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="выбрать время"
+            android:text="выбрать время начала"
             app:icon="@drawable/calendar" />
 
 
@@ -57,7 +57,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="TextView" />
+            android:text="Не выбрано" />
 
         <Button
             android:id="@+id/endTimeButton"
@@ -66,7 +66,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="выбрать время"
+            android:text="выбрать время конца"
             app:icon="@drawable/calendar" />
 
     </LinearLayout>
