@@ -5,8 +5,6 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
-import android.widget.TimePicker
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -16,9 +14,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import edu.ivankuznetsov.registerdataviabarcode.R
 import edu.ivankuznetsov.registerdataviabarcode.database.entity.Event
 import edu.ivankuznetsov.registerdataviabarcode.databinding.ActivityEventsBinding
 import edu.ivankuznetsov.registerdataviabarcode.databinding.EventNewDialogBinding
@@ -28,7 +24,6 @@ import edu.ivankuznetsov.registerdataviabarcode.util.showErrorMessage
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.EventsViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.UUID
 
 class EventsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEventsBinding

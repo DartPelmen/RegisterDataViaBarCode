@@ -28,12 +28,15 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 class DataListFragment : Fragment() {
     private lateinit var binding: FragmentDataListBinding
     private lateinit var controller: NavController
     private lateinit var dataModel: CustomerViewModel
     private lateinit var adapter: CustomersListAdapter
+    var eventId: String? = null
+    var eventName:String? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         controller = findNavController()
@@ -49,9 +52,9 @@ class DataListFragment : Fragment() {
             adapter.setCustomers(it)
             productDiffResult.dispatchUpdatesTo(adapter)
         }
-
-        requireActivity().intent.getStringExtra("eventId")?.let {
-            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+        eventName = requireActivity().intent.getStringExtra("eventName")
+        eventId = requireActivity().intent.getStringExtra("eventId")
+        eventId?.let {
             dataModel.setCurrentCustomer(it, requireContext())
         }
     }
@@ -121,7 +124,7 @@ class DataListFragment : Fragment() {
         customerList: List<Customer>,
         workbook: HSSFWorkbook
     ): HSSFWorkbook {
-        for (i in 1 until customerList.size) {
+        for (i in customerList.indices) {
             val row = workbook.getSheetAt(0).createRow(i)
             val dataFirstName = row.createCell(1)
             val dataPatronymic = row.createCell(2)
@@ -138,12 +141,13 @@ class DataListFragment : Fragment() {
     }
 
     private fun saveExcelFile(workbook: HSSFWorkbook): File {
+        val fileName = eventName ?: "sample"
         var fos: FileOutputStream? = null
         val pathPrefix = Environment.getExternalStorageDirectory().toString()
         val file = File(
-            pathPrefix, "Documents/sample ${
-                LocalDateTime.now()
-                    .toEpochSecond(ZoneOffset.UTC)
+            pathPrefix, "Documents/$fileName ${
+                DateTimeFormatter.ofPattern("dd_MMMM_yyyy HH_mm_ss").format(LocalDateTime.now())
+                    
             }.xls"
         )
         try {

@@ -44,6 +44,8 @@ class EventsAdapter : RecyclerView.Adapter<EventsAdapter.ViewHolder>() {
         holder.itemView.setOnClickListener {
             val intent = Intent(holder.itemView.context,CustomersActivity::class.java)
             intent.putExtra("eventId",data[position].idEvent.toString())
+            intent.putExtra("eventName", data[position].title)
+
             holder.itemView.context.startActivity(intent)
         }
     }
