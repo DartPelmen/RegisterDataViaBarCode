@@ -16,7 +16,7 @@
             android:id="@+id/eventTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="название мероприятия" />
+            android:hint="@string/event_name" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
@@ -28,19 +28,25 @@
 
         <TextView
             android:id="@+id/startDateTime"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Не выбрано" />
+            android:layout_weight="2"
+            android:backgroundTint="#6DEB58"
+
+            android:text="@string/not_selected"
+            android:textColor="@color/black" />
 
         <Button
             android:id="@+id/startDateTimeButton"
-            style="@style/Widget.Material3.Button.OutlinedButton.Icon"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="выбрать время начала"
-            app:icon="@drawable/calendar" />
+            android:text="@string/choose_start_time"
+            android:backgroundTint="#6DEB58"
+            android:textColor="@color/black"
+            app:iconTint="@color/black"
+            app:icon="@drawable/calendar"
+            app:iconGravity="start" />
 
 
     </LinearLayout>
@@ -54,20 +60,22 @@
 
         <TextView
             android:id="@+id/endDateTime"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Не выбрано" />
+            android:layout_weight="2"
+            android:text="@string/not_selected" />
 
         <Button
             android:id="@+id/endTimeButton"
-            style="@style/Widget.Material3.Button.OutlinedButton.Icon"
-
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="выбрать время конца"
-            app:icon="@drawable/calendar" />
+            android:backgroundTint="#6DEB58"
+            android:text="@string/choose_end_time"
+            android:textColor="@color/black"
+            app:icon="@drawable/calendar"
+            app:iconGravity="start"
+            app:iconTint="@color/black" />
 
     </LinearLayout>
 
@@ -76,6 +84,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:text="добавить событие" />
+        android:backgroundTint="#6DEB58"
+        android:textColor="@color/black"
+
+        android:text="@string/add_event" />
 
 </LinearLayout>

@@ -107,16 +107,20 @@ class DataListFragment : Fragment() {
         val workbook = HSSFWorkbook()
         val firstSheet = workbook.createSheet("Sheet No 1")
         val headers = firstSheet.createRow(0)
-        val firstName = headers.createCell(1)
-        val patronymic = headers.createCell(2)
-        val lastName = headers.createCell(0)
+        val firstName = headers.createCell(0)
+        val patronymic = headers.createCell(1)
+        val lastName = headers.createCell(2)
         val phone = headers.createCell(3)
+        val rank = headers.createCell(4)
+        val office = headers.createCell(5)
+        val scanDate = headers.createCell(6)
         lastName.setCellValue("Фамилия")
         firstName.setCellValue("Имя")
         patronymic.setCellValue("Отчество")
         phone.setCellValue("Телефон")
-        phone.setCellValue("Офис")
-        phone.setCellValue("Должность")
+        rank.setCellValue("Должность")
+        office.setCellValue("Подразделение")
+        scanDate.setCellValue("Дата сканирования")
         return workbook
     }
 
@@ -125,17 +129,21 @@ class DataListFragment : Fragment() {
         workbook: HSSFWorkbook
     ): HSSFWorkbook {
         for (i in customerList.indices) {
-            val row = workbook.getSheetAt(0).createRow(i)
-            val dataFirstName = row.createCell(1)
-            val dataPatronymic = row.createCell(2)
-            val dataLastName = row.createCell(0)
-            val dataPhone = row.createCell(3)
-            dataFirstName.setCellValue(customerList[i].fname)
-            dataPatronymic.setCellValue(customerList[i].sname)
-            dataLastName.setCellValue(customerList[i].lname)
-            dataPhone.setCellValue(customerList[i].phone)
-            dataPhone.setCellValue(customerList[i].office)
-            dataPhone.setCellValue(customerList[i].rank)
+            val row = workbook.getSheetAt(0).createRow(i+1)
+            val firstName = row.createCell(0)
+            val patronymic = row.createCell(1)
+            val lastName = row.createCell(2)
+            val phone = row.createCell(3)
+            val rank = row.createCell(4)
+            val office = row.createCell(5)
+            val scanDate = row.createCell(6)
+            firstName.setCellValue(customerList[i].fname)
+            patronymic.setCellValue(customerList[i].sname)
+            lastName.setCellValue(customerList[i].lname)
+            phone.setCellValue(customerList[i].phone)
+            office.setCellValue(customerList[i].office)
+            rank.setCellValue(customerList[i].rank)
+            scanDate.setCellValue(customerList[i].date.toString())
         }
         return workbook
     }

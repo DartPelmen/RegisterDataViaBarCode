@@ -29,7 +29,7 @@
         android:layout_marginBottom="32dp"
         android:backgroundTint="#6DEB58"
         android:fontFamily="@font/open_sans"
-        android:text="добавить слушателей"
+        android:text="@string/add_participants"
         android:textColor="#000000"
         android:textSize="18sp"
         android:textStyle="bold"

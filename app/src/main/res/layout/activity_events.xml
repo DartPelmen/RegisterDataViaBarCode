@@ -13,7 +13,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
         android:fontFamily="@font/open_sans"
-        android:text="текущие мероприятия"
+        android:text="@string/current_events"
         android:textAlignment="textStart"
         android:textAllCaps="true"
         android:textColor="#000000"
@@ -39,11 +39,12 @@
         android:id="@+id/floatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="#6DEB58"
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="32dp"
         android:clickable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@android:drawable/ic_menu_add"
-        android:contentDescription="add event" />
+        android:contentDescription="@string/add_event" />
 </androidx.constraintlayout.widget.ConstraintLayout>

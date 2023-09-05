@@ -5,10 +5,10 @@
         android:id="@+id/dataListFragment"
         android:icon="@drawable/listeners"
         android:iconTintMode="multiply"
-        android:title="data list" />
+        android:title="@string/event_list" />
     <item
         android:id="@+id/scannerFragment"
         android:icon="@drawable/qrcode"
         android:iconTintMode="multiply"
-        android:title="new data" />
+        android:title="@string/new_event" />
 </menu>

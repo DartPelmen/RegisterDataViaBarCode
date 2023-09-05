@@ -1,10 +1,13 @@
 package edu.ivankuznetsov.registerdataviabarcode.ui.fragment
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.camera.core.CameraSelector
@@ -15,13 +18,14 @@ import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
+
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputLayout
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -30,6 +34,7 @@ import com.google.mlkit.vision.common.InputImage
 import edu.ivankuznetsov.registerdataviabarcode.R
 import edu.ivankuznetsov.registerdataviabarcode.database.entity.Customer
 import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentBarCodeInfoDialogListDialogBinding
+import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentManualAddDialogBinding
 import edu.ivankuznetsov.registerdataviabarcode.databinding.FragmentScannerBinding
 import edu.ivankuznetsov.registerdataviabarcode.ui.adapter.DialogPreviewAdapter
 import edu.ivankuznetsov.registerdataviabarcode.util.CustomersDiffUtil
@@ -39,6 +44,7 @@ import edu.ivankuznetsov.registerdataviabarcode.viewmodel.BarCodeViewModel
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CameraXViewModel
 import edu.ivankuznetsov.registerdataviabarcode.viewmodel.CustomerViewModel
 import java.lang.ref.WeakReference
+import java.time.LocalDateTime
 import java.util.concurrent.Executors
 
 
@@ -50,8 +56,11 @@ class ScannerFragment : Fragment() {
     private lateinit var analysisUseCase: ImageAnalysis
     private lateinit var viewModel: CameraXViewModel
     private lateinit var barCodeDialog: BottomSheetDialog
+    private lateinit var manualAddDialog: BottomSheetDialog
     private lateinit var binding: FragmentScannerBinding
     private lateinit var dialogBinding: FragmentBarCodeInfoDialogListDialogBinding
+    private lateinit var manualAddDialogBinding: FragmentManualAddDialogBinding
+
     private lateinit var dataModel: CustomerViewModel
     private lateinit var adapter: DialogPreviewAdapter
     private val analysisExecutor = Executors.newSingleThreadExecutor()
@@ -93,8 +102,10 @@ class ScannerFragment : Fragment() {
         adapter = DialogPreviewAdapter()
         binding = FragmentScannerBinding.inflate(inflater, container, false)
         barCodeDialog = BottomSheetDialog(requireActivity())
+        manualAddDialog = BottomSheetDialog(requireActivity())
         dialogBinding =
             FragmentBarCodeInfoDialogListDialogBinding.inflate(barCodeDialog.layoutInflater)
+        manualAddDialogBinding = FragmentManualAddDialogBinding.inflate(manualAddDialog.layoutInflater)
         dialogBinding.dialogRV.layoutManager = LinearLayoutManager(requireActivity())
 //        dialogBinding.dialogRV.addItemDecoration(
 //            DividerItemDecoration(requireActivity(),
@@ -105,16 +116,94 @@ class ScannerFragment : Fragment() {
         ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(dialogBinding.dialogRV)
 
         barCodeDialog.setContentView(dialogBinding.root)
+        manualAddDialog.setContentView(manualAddDialogBinding.root)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        configureAddDialog()
+        configureManualAddDialog()
         cameraSelector = CameraSelector.Builder()
             .requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
         viewModel = CameraXViewModel(WeakReference(requireActivity()))
-
+        manualAddDialogBinding.addParticipantButton.setOnClickListener {
+            val flag = checkErrorManualAdd()
+            if(flag){
+                val scanDate = LocalDateTime.now()
+                val customer = Customer(fname = manualAddDialogBinding.firstNameField.text.toString(),
+                                        lname = manualAddDialogBinding.lastNameField.text.toString(),
+                                        sname = manualAddDialogBinding.patronymicField.text.toString(),
+                                        rank = manualAddDialogBinding.rankField.text.toString(),
+                                        office = manualAddDialogBinding.officeField.text.toString(),
+                                        phone = manualAddDialogBinding.phoneField.text.toString(),
+                                        date = scanDate)
+                dataModel.addData(requireContext(), listOf(customer))
+                manualAddDialog.dismiss()
+            } else {
+                Toast.makeText(requireContext(),"Ошибка добавления данных", Toast.LENGTH_SHORT).show()
+            }
+        }
+        manualAddDialog.setOnDismissListener {
+            closeManualDialog()
+        }
+        manualAddDialog.setOnCancelListener {
+            closeManualDialog()
+        }
+        binding.manualAddButton.setOnClickListener {
+            showManualAddDialog()
+        }
     }
+
+    private fun closeManualDialog() {
+        manualAddDialogBinding.lastNameLayout.error  = null
+        manualAddDialogBinding.firstNameLayout.error  = null
+        manualAddDialogBinding.patronymicLayout.error  = null
+        manualAddDialogBinding.rankLayout.error  = null
+        manualAddDialogBinding.officeLayout.error  = null
+        manualAddDialogBinding.phoneLayout.error  = null
+        manualAddDialogBinding.lastNameField.setText("")
+        manualAddDialogBinding.firstNameField.setText("")
+        manualAddDialogBinding.patronymicField.setText("")
+        manualAddDialogBinding.rankField.setText("")
+        manualAddDialogBinding.officeField.setText("")
+        manualAddDialogBinding.phoneField.setText("")
+
+
+        try {
+            requireActivity().runOnUiThread {
+                cameraProvider.bindToLifecycle(this, cameraSelector, analysisUseCase)
+            }
+        } catch (illegalStateException: IllegalStateException) {
+            Log.e(TAG, illegalStateException.message ?: "IllegalStateException")
+        } catch (illegalArgumentException: IllegalArgumentException) {
+            Log.e(TAG, illegalArgumentException.message ?: "IllegalArgumentException")
+        }
+    }
+
+    private fun checkErrorManualAdd(): Boolean {
+         setErrorIfNeeded(manualAddDialogBinding.lastNameField, manualAddDialogBinding.lastNameLayout)
+         setErrorIfNeeded(manualAddDialogBinding.firstNameField, manualAddDialogBinding.firstNameLayout)
+         setErrorIfNeeded(manualAddDialogBinding.officeField, manualAddDialogBinding.officeLayout)
+         setErrorIfNeeded(manualAddDialogBinding.rankField, manualAddDialogBinding.rankLayout)
+         setErrorIfNeeded(manualAddDialogBinding.phoneField, manualAddDialogBinding.phoneLayout)
+
+        return !(manualAddDialogBinding.lastNameField.text.isNullOrBlank() ||
+                manualAddDialogBinding.firstNameField.text.isNullOrBlank() ||
+                manualAddDialogBinding.patronymicField.text.isNullOrBlank() ||
+                manualAddDialogBinding.officeField.text.isNullOrBlank() ||
+                manualAddDialogBinding.rankField.text.isNullOrBlank())
+    }
+
+    private fun setErrorIfNeeded(editText: EditText, textLayout: TextInputLayout) {
+        if(editText.text.isNullOrBlank()) {
+            textLayout.error = getString(R.string.needToFillThis)
+        }
+        else {
+            textLayout.error = null
+        }
+    }
+
 
     override fun onStart() {
         super.onStart()
@@ -130,6 +219,13 @@ class ScannerFragment : Fragment() {
                 bindAnalyseUseCase()
             }
         }
+    }
+
+    private fun showManualAddDialog(){
+        requireActivity().runOnUiThread {
+            cameraProvider.unbind(analysisUseCase)
+        }
+        manualAddDialog.show()
     }
 
     private fun bindPreviewUseCase() {
@@ -222,7 +318,6 @@ class ScannerFragment : Fragment() {
                         val productDiffResult = DiffUtil.calculateDiff(productDiffUtilCallback)
                         adapter.setCameras(models)
                         productDiffResult.dispatchUpdatesTo(adapter)
-                        configureAddDialog()
                         barCodeDialog.show()
                     } ?: showErrorMessage(
                         requireActivity(), "Ошибка сканирования",
@@ -276,15 +371,43 @@ class ScannerFragment : Fragment() {
             barCodeDialog.dismiss()
         }
         barCodeDialog.setOnCancelListener {
-            requireActivity().runOnUiThread {
-                cameraProvider.bindToLifecycle(this, cameraSelector, analysisUseCase)
+            try {
+                requireActivity().runOnUiThread {
+                    cameraProvider.bindToLifecycle(this, cameraSelector, analysisUseCase)
+                }
+            } catch (illegalStateException: IllegalStateException) {
+                Log.e(TAG, illegalStateException.message ?: "IllegalStateException")
+            } catch (illegalArgumentException: IllegalArgumentException) {
+                Log.e(TAG, illegalArgumentException.message ?: "IllegalArgumentException")
             }
         }
-        barCodeDialog.setOnDismissListener {
-            requireActivity().runOnUiThread {
-                cameraProvider.bindToLifecycle(this, cameraSelector, analysisUseCase)
+    }
+
+    private fun configureManualAddDialog(){
+        addTextWatcher(manualAddDialogBinding.lastNameField, manualAddDialogBinding.lastNameLayout)
+        addTextWatcher(manualAddDialogBinding.firstNameField, manualAddDialogBinding.firstNameLayout)
+        addTextWatcher(manualAddDialogBinding.officeField, manualAddDialogBinding.officeLayout)
+        addTextWatcher(manualAddDialogBinding.rankField, manualAddDialogBinding.rankLayout)
+        addTextWatcher(manualAddDialogBinding.phoneField, manualAddDialogBinding.phoneLayout)
+    }
+
+    private fun addTextWatcher(editText: EditText, textLayout: TextInputLayout) {
+        editText.addTextChangedListener(object : TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                editText.error = null
             }
-        }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if(editText.text.isNullOrBlank()){
+                    textLayout.error = getString(R.string.needToFillThis)
+                } else {
+                    textLayout.error = null
+                }
+            }
+        })
     }
 
     override fun onPause() {
