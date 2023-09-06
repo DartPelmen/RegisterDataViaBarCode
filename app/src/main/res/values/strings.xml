@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RegisterDataViaBarCode</string>
+    <string name="app_name">Контроль мероприятий</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="current_events">Текущие мероприятия</string>
@@ -11,7 +11,7 @@
     <string name="add_participants">Добавить участников</string>
     <string name="download">Скачать</string>
     <string name="event_participants">Участники мероприятия</string>
-    <string name="event_list">Список мероприятий</string>
+    <string name="customer_list">Список участников</string>
     <string name="new_event">Новое мероприятие</string>
     <string name="fill_manual">Заполнить самостоятельно</string>
     <string name="new_participant">НОВЫЙ УЧАСТНИК</string>
@@ -24,5 +24,6 @@
     <string name="addManually">Добавить вручную</string>
     <string name="needToFillThis">Это поле нужно заполнить!</string>
     <string name="phone">Телефон</string>
-    <string name="patronymicOptional">Отчество (необязательно)</string>
+    <string name="newParticipant">Новый участник</string>
+    <string name="patronymicOptional">Отчество (при наличии)</string>
 </resources>

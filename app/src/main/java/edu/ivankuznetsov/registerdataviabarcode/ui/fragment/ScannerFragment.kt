@@ -131,15 +131,28 @@ class ScannerFragment : Fragment() {
             val flag = checkErrorManualAdd()
             if(flag){
                 val scanDate = LocalDateTime.now()
-                val customer = Customer(fname = manualAddDialogBinding.firstNameField.text.toString(),
-                                        lname = manualAddDialogBinding.lastNameField.text.toString(),
-                                        sname = manualAddDialogBinding.patronymicField.text.toString(),
-                                        rank = manualAddDialogBinding.rankField.text.toString(),
-                                        office = manualAddDialogBinding.officeField.text.toString(),
-                                        phone = manualAddDialogBinding.phoneField.text.toString(),
+                val customer = Customer(fname = manualAddDialogBinding.firstNameField.text.toString().trim(),
+                                        lname = manualAddDialogBinding.lastNameField.text.toString().trim(),
+                                        sname = manualAddDialogBinding.patronymicField.text.toString().trim(),
+                                        rank = manualAddDialogBinding.rankField.text.toString().trim(),
+                                        office = manualAddDialogBinding.officeField.text.toString().trim(),
+                                        phone = manualAddDialogBinding.phoneField.text.toString().trim(),
                                         date = scanDate)
-                dataModel.addData(requireContext(), listOf(customer))
-                manualAddDialog.dismiss()
+                if(!dataModel.containsManual(customer)) {
+                    dataModel.addData(requireContext(), listOf(customer))
+                    manualAddDialog.dismiss()
+                }
+                else {
+                    Log.d(TAG,"NOT CONTAINS IN VM $customer")
+
+                    showErrorMessage(
+                        requireActivity(), "Ошибка добавления данных",
+                        "Обнаружены данные, которые уже добавлены в список!"
+                    ) { x, _ ->
+                        x.dismiss()
+                    }
+                }
+
             } else {
                 Toast.makeText(requireContext(),"Ошибка добавления данных", Toast.LENGTH_SHORT).show()
             }

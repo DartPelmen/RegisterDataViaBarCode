@@ -39,6 +39,13 @@ class CustomerViewModel: ViewModel() {
     }
     fun contains(customer: Customer): Boolean
     = data.value?.stream()?.anyMatch { x -> x.idCustomer == customer.idCustomer } ?: false
+    fun containsManual(customer: Customer): Boolean
+            = data.value?.stream()?.anyMatch { x -> x.fname == customer.fname &&
+            x.sname == customer.sname &&
+            x.lname == customer.lname &&
+            x.office == customer.office &&
+            x.rank == customer.rank &&
+            x.phone == customer.phone} ?: false
 
     fun setCurrentCustomer(uuid: String, context: Context){
         executorService.execute {
