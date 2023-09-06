@@ -18,7 +18,6 @@ import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
-
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -102,7 +101,7 @@ class ScannerFragment : Fragment() {
         adapter = DialogPreviewAdapter()
         binding = FragmentScannerBinding.inflate(inflater, container, false)
         barCodeDialog = BottomSheetDialog(requireActivity())
-        manualAddDialog = BottomSheetDialog(requireActivity())
+        manualAddDialog = BottomSheetDialog(requireActivity(), R.style.BottomSheetDialogTheme)
         dialogBinding =
             FragmentBarCodeInfoDialogListDialogBinding.inflate(barCodeDialog.layoutInflater)
         manualAddDialogBinding = FragmentManualAddDialogBinding.inflate(manualAddDialog.layoutInflater)

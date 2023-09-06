@@ -23,7 +23,7 @@
     <string name="addParticipant">Добавить участника</string>
     <string name="addManually">Добавить вручную</string>
     <string name="needToFillThis">Это поле нужно заполнить!</string>
-    <string name="phone">Телефон</string>
+    <string name="phone">Телефон (+7XXXXXXXXXX)</string>
     <string name="newParticipant">Новый участник</string>
     <string name="patronymicOptional">Отчество (при наличии)</string>
 </resources>
